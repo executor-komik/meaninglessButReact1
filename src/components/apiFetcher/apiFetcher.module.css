@@ -1,0 +1,20 @@
+.apiFetcher {
+  align-items: center;
+  background: linear-gradient(135deg, #183c42, #1b293e);
+  border: 1px solid #2d666c;
+  border-radius: 18px;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  font: 700 18px var(--sans);
+  gap: 14px;
+  min-height: 118px;
+  min-width: min(310px, 100%);
+  padding: 24px 28px;
+  text-align: left;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+.apiFetcher:hover, .apiFetcher:focus-visible { box-shadow: var(--shadow); transform: translateY(-5px); }
+.apiFetcher:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.apiFetcher__icon { color: var(--cyan); font-size: 32px; }
+.apiFetcher__arrow { color: var(--cyan); font-size: 24px; margin-left: auto; }

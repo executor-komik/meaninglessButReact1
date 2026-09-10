@@ -1,0 +1,21 @@
+.sendHai {
+  align-items: center;
+  background: #ffffff;
+  border: 0;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  color: #172033;
+  cursor: pointer;
+  display: flex;
+  font: 700 18px var(--sans);
+  gap: 14px;
+  min-height: 118px;
+  min-width: min(310px, 100%);
+  padding: 24px 28px;
+  text-align: left;
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+.sendHai:hover, .sendHai:focus-visible { box-shadow: 0 24px 50px rgba(0, 0, 0, .35); transform: translateY(-5px); }
+.sendHai:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.sendHai__icon { font-size: 30px; }
+.sendHai__arrow { color: #d95f42; font-size: 24px; margin-left: auto; }
