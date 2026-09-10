@@ -4,7 +4,7 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig(({ command }) => ({
-  base: command === 'build' ? '/Execute/' : '/',
+  base: command === 'build' ? '/meaninglessButReact1/' : '/',
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] })
