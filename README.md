@@ -31,3 +31,21 @@ The site URL will be:
 `https://bentennyson-5.github.io/Execute/`
 
 The Vite base path and SPA fallback are configured for this repository, including the `/noice` route.
+
+## Capital gains calculator
+
+Choose **Advanced Calculator** on the dashboard to open `/needHelp`. Enter purchase
+and sale transactions with investment name/type, date, quantity, and total amount,
+then press **Calculate my gains**. Sales are matched FIFO to purchases with the same
+name and investment type; the calculator derives holding period and gain/loss from
+the matched cost and sale proceeds. Results are separated by asset type, term, and
+financial year. Use **Download full report (PDF)** on the results to save a local
+report containing the summary, matched sales, category totals, tax estimate, and
+assumptions.
+
+The illustrative tax estimate assumes eligible equity STCG at 20%, equity LTCG at
+12.5% after the ₹1,25,000 annual threshold, debt-fund gains at the default editable
+30% slab for short-term holdings and 12.5% for eligible long-term holdings, plus
+4% cess. It excludes surcharge, rebates, carried-forward losses, fees, other income,
+and individual/date-specific tax rules. Confirm the applicable treatment before
+filing.

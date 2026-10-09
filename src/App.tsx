@@ -6,6 +6,7 @@ import './App.css'
 import ApiFetcher from './components/apiFetcher/ApiFetcher'
 import AnimateSomething from './components/animateSomething/AnimateSomething'
 import Calculator, { CalculatorPage } from './components/calculator/Calculator'
+import CapitalGainsCalculator from './components/capitalGains/CapitalGainsCalculator'
 import SendHai from './components/sendHai/SendHai'
 import { App as PromiseLessons } from './promiseLessons/App'
 import './promiseLessons/index.css'
@@ -38,9 +39,15 @@ function App() {
     setPath('/promise-lessons')
   }
 
+  const navigateNeedHelp = () => {
+    window.history.pushState({}, '', `${import.meta.env.BASE_URL}needHelp`)
+    setPath('/needHelp')
+  }
+
   if (path === '/dailyChallenge') return <DailyChallenge onBack={navigateHome} />
   if (path === '/noice') return <Noice onBack={navigateHome} />
   if (path === '/calculator') return <CalculatorPage onBack={navigateHome} />
+  if (path === '/needHelp') return <CapitalGainsCalculator onBack={navigateHome} />
   if (path === '/promise-lessons') {
     return (
       <div className="promiseLessonsPage">
@@ -82,7 +89,7 @@ function App() {
           </div>
           <div className="actionBoard__item actionBoard__item--advancedCalculator">
             <span className="actionBoard__index">06</span>
-            <button className="advancedCalculator" type="button" disabled>
+            <button className="advancedCalculator" type="button" onClick={navigateNeedHelp}>
               <span aria-hidden="true">ƒx</span>
               <span>Advanced Calculator</span>
             </button>
