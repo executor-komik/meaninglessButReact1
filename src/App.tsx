@@ -7,6 +7,8 @@ import ApiFetcher from './components/apiFetcher/ApiFetcher'
 import AnimateSomething from './components/animateSomething/AnimateSomething'
 import Calculator, { CalculatorPage } from './components/calculator/Calculator'
 import SendHai from './components/sendHai/SendHai'
+import { App as PromiseLessons } from './promiseLessons/App'
+import './promiseLessons/index.css'
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '')
 const getRoutePath = () => window.location.pathname.replace(basePath, '') || '/'
@@ -31,9 +33,22 @@ function App() {
     setPath('/calculator')
   }
 
+  const navigatePromiseLessons = () => {
+    window.history.pushState({}, '', `${import.meta.env.BASE_URL}promise-lessons`)
+    setPath('/promise-lessons')
+  }
+
   if (path === '/dailyChallenge') return <DailyChallenge onBack={navigateHome} />
   if (path === '/noice') return <Noice onBack={navigateHome} />
   if (path === '/calculator') return <CalculatorPage onBack={navigateHome} />
+  if (path === '/promise-lessons') {
+    return (
+      <div className="promiseLessonsPage">
+        <button className="page__backButton" type="button" onClick={navigateHome}>← Home</button>
+        <PromiseLessons />
+      </div>
+    )
+  }
 
   return (
     <>
@@ -59,7 +74,7 @@ function App() {
           </div>
           <div className="actionBoard__item actionBoard__item--apiAgain">
             <span className="actionBoard__index">04</span>
-            <ApiFetcher label="API Again" />
+            <ApiFetcher label="API Again" onClick={navigatePromiseLessons} />
           </div>
           <div className="actionBoard__item actionBoard__item--calculator">
             <span className="actionBoard__index">05</span>

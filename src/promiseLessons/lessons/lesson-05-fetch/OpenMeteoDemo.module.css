@@ -1,0 +1,79 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.label {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.button {
+  padding: 8px 12px;
+  font: inherit;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  background: #16A34A;
+  cursor: pointer;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.buttonSecondary {
+  padding: 8px 12px;
+  font: inherit;
+  color: #E8E8EC;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.buttonSecondary:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.fieldLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.textInput {
+  padding: 8px 10px;
+  font: inherit;
+  color: inherit;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 6px;
+  background: rgb(0 0 0 / 25%);
+}
+
+.checkboxRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+  cursor: pointer;
+}

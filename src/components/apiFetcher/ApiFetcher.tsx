@@ -1,8 +1,18 @@
 import styles from './apiFetcher.module.css';
 
-const ApiFetcher = ({ label = 'Daily Challenge' }: { label?: string }) => {
+const ApiFetcher = ({
+  label = 'Daily Challenge',
+  onClick,
+}: {
+  label?: string;
+  onClick?: () => void;
+}) => {
 
     const openDailyChallenge = () => {
+      if (onClick) {
+        onClick();
+        return;
+      }
       window.open('https://leetcode.com/problemset/', '_blank', 'noopener,noreferrer');
     };
 

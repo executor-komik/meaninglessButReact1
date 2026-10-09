@@ -40,6 +40,8 @@ h1 { max-width: 560px; margin: 0; color: var(--ink); font-family: var(--heading)
 }
 
 .page { min-height: 100svh; padding: clamp(28px, 7vw, 88px) clamp(24px, 8vw, 110px); }
+.promiseLessonsPage { min-height: 100svh; background: #0f1115; }
+.promiseLessonsPage > .page__backButton { margin: 24px 24px 0; }
 .page--challenge { background: radial-gradient(circle at 80% 18%, rgba(89, 64, 132, .35), transparent 30%), var(--bg); }
 .page__backButton, .waveOverlay__close { border: 1px solid var(--line); border-radius: 999px; background: rgba(20, 24, 40, .8); color: var(--text); cursor: pointer; font: 700 13px var(--sans); padding: 10px 17px; transition: color 180ms ease, border-color 180ms ease, transform 180ms ease; }
 .page__backButton:hover, .waveOverlay__close:hover { border-color: var(--cyan); color: var(--ink); transform: translateY(-2px); }
