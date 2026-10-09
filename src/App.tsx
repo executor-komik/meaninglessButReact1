@@ -7,6 +7,7 @@ import ApiFetcher from './components/apiFetcher/ApiFetcher'
 import AnimateSomething from './components/animateSomething/AnimateSomething'
 import Calculator, { CalculatorPage } from './components/calculator/Calculator'
 import CapitalGainsCalculator from './components/capitalGains/CapitalGainsCalculator'
+import ImageEditor from './components/imageEditor/ImageEditor'
 import SendHai from './components/sendHai/SendHai'
 import { App as PromiseLessons } from './promiseLessons/App'
 import './promiseLessons/index.css'
@@ -44,10 +45,16 @@ function App() {
     setPath('/needHelp')
   }
 
+  const navigateEdit = () => {
+    window.history.pushState({}, '', `${import.meta.env.BASE_URL}edit`)
+    setPath('/edit')
+  }
+
   if (path === '/dailyChallenge') return <DailyChallenge onBack={navigateHome} />
   if (path === '/noice') return <Noice onBack={navigateHome} />
   if (path === '/calculator') return <CalculatorPage onBack={navigateHome} />
   if (path === '/needHelp') return <CapitalGainsCalculator onBack={navigateHome} />
+  if (path === '/edit') return <ImageEditor onBack={navigateHome} />
   if (path === '/promise-lessons') {
     return (
       <div className="promiseLessonsPage">
@@ -97,7 +104,7 @@ function App() {
           </div>
           <div className="actionBoard__item actionBoard__item--topIdea">
             <span className="actionBoard__index">07</span>
-            <button className="ideaButton ideaButton--top" type="button">
+            <button className="ideaButton ideaButton--top" type="button" onClick={navigateEdit}>
               <span className="ideaButton__icon" aria-hidden="true">↑</span>
               <span>Top idea</span>
             </button>
