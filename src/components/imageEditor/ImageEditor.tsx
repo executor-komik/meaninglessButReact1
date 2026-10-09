@@ -2,7 +2,8 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import styles from './imageEditor.module.css'
 
 type Point = { x: number; y: number }
-type TemplateId = 'diagonal' | 'reverse' | 'plus' | 'x' | 'horizontal'
+type TemplateId = 'diagonal' | 'reverse' | 'plus' | 'x' | 'horizontal' | 'verticalBands' | 'slashBands' | 'backslashBands' | 'radial' | 'apex'
+type BandAxis = 'vertical' | 'slash' | 'backslash'
 type LoadedImage = { image: HTMLImageElement; name: string }
 type SlicePreview = { index: number; blob: Blob; url: string }
 
@@ -12,10 +13,81 @@ const templates: { id: TemplateId; name: string; pieces: number; mark: string }[
   { id: 'plus', name: 'Plus / cross cut', pieces: 4, mark: '+' },
   { id: 'x', name: 'X cut', pieces: 4, mark: '×' },
   { id: 'horizontal', name: 'Horizontal bands', pieces: 3, mark: '☰' },
+  { id: 'verticalBands', name: 'Vertical bands', pieces: 6, mark: '║' },
+  { id: 'slashBands', name: 'Diagonal bands', pieces: 7, mark: '╱' },
+  { id: 'backslashBands', name: 'Reverse diagonal bands', pieces: 7, mark: '╲' },
+  { id: 'radial', name: 'Radial 8-piece', pieces: 8, mark: '✳' },
+  { id: 'apex', name: 'Apex triangle', pieces: 3, mark: '△' },
 ]
+
+const getBandProjection = (axis: BandAxis, width: number, height: number) => {
+  if (axis === 'vertical') return { min: 0, max: width, value: (point: Point) => point.x }
+  if (axis === 'slash') return { min: 0, max: width + height, value: (point: Point) => point.x + point.y }
+  return { min: -height, max: width, value: (point: Point) => point.x - point.y }
+}
+
+const clipPolygon = (polygon: Point[], valueAt: (point: Point) => number, threshold: number, keepGreater: boolean): Point[] => {
+  const clipped: Point[] = []
+  for (let index = 0; index < polygon.length; index += 1) {
+    const start = polygon[index]
+    const end = polygon[(index + 1) % polygon.length]
+    const startValue = valueAt(start)
+    const endValue = valueAt(end)
+    const startInside = keepGreater ? startValue >= threshold : startValue <= threshold
+    const endInside = keepGreater ? endValue >= threshold : endValue <= threshold
+
+    if (startInside && endInside) {
+      clipped.push(end)
+    } else if (startInside !== endInside) {
+      const amount = (threshold - startValue) / (endValue - startValue)
+      const intersection = {
+        x: start.x + (end.x - start.x) * amount,
+        y: start.y + (end.y - start.y) * amount,
+      }
+      clipped.push(intersection)
+      if (endInside) clipped.push(end)
+    }
+  }
+  return clipped
+}
+
+const getBandPolygons = (axis: BandAxis, width: number, height: number, pieceCount: number): Point[][] => {
+  const { min, max, value } = getBandProjection(axis, width, height)
+  const bounds: Point[] = [{ x: 0, y: 0 }, { x: width, y: 0 }, { x: width, y: height }, { x: 0, y: height }]
+
+  return Array.from({ length: pieceCount }, (_, index) => {
+    const lower = min + ((max - min) * index) / pieceCount
+    const upper = min + ((max - min) * (index + 1)) / pieceCount
+    return clipPolygon(clipPolygon(bounds, value, lower, true), value, upper, false)
+  })
+}
+
+const getBandLine = (axis: BandAxis, threshold: number, width: number, height: number): [Point, Point] => {
+  const candidates = axis === 'vertical'
+    ? [{ x: threshold, y: 0 }, { x: threshold, y: height }]
+    : axis === 'slash'
+      ? [{ x: threshold, y: 0 }, { x: width, y: threshold - width }, { x: threshold - height, y: height }, { x: 0, y: threshold }]
+      : [{ x: threshold, y: 0 }, { x: width, y: width - threshold }, { x: threshold + height, y: height }, { x: 0, y: -threshold }]
+  const intersections = candidates.filter((point) =>
+    point.x >= 0 && point.x <= width && point.y >= 0 && point.y <= height,
+  ).filter((point, index, points) =>
+    points.findIndex((other) => Math.abs(other.x - point.x) < 0.0001 && Math.abs(other.y - point.y) < 0.0001) === index,
+  )
+  return [intersections[0], intersections[1]]
+}
+
+const getBandLines = (axis: BandAxis, width: number, height: number, pieceCount: number): [Point, Point][] => {
+  const { min, max } = getBandProjection(axis, width, height)
+  return Array.from({ length: pieceCount - 1 }, (_, index) =>
+    getBandLine(axis, min + ((max - min) * (index + 1)) / pieceCount, width, height),
+  )
+}
 
 const getPolygons = (template: TemplateId, width: number, height: number): Point[][] => {
   const center = { x: width / 2, y: height / 2 }
+  const topCenter = { x: center.x, y: 0 }
+  const bottomLeft = { x: 0, y: height }
+  const bottomRight = { x: width, y: height }
 
   switch (template) {
     case 'diagonal':
@@ -48,10 +120,37 @@ const getPolygons = (template: TemplateId, width: number, height: number): Point
         [{ x: 0, y: height / 3 }, { x: width, y: height / 3 }, { x: width, y: (height * 2) / 3 }, { x: 0, y: (height * 2) / 3 }],
         [{ x: 0, y: (height * 2) / 3 }, { x: width, y: (height * 2) / 3 }, { x: width, y: height }, { x: 0, y: height }],
       ]
+    case 'verticalBands':
+      return getBandPolygons('vertical', width, height, 6)
+    case 'slashBands':
+      return getBandPolygons('slash', width, height, 7)
+    case 'backslashBands':
+      return getBandPolygons('backslash', width, height, 7)
+    case 'radial': {
+      const perimeter = [
+        topCenter,
+        { x: width, y: 0 },
+        { x: width, y: center.y },
+        bottomRight,
+        { x: center.x, y: height },
+        bottomLeft,
+        { x: 0, y: center.y },
+        { x: 0, y: 0 },
+      ]
+      return perimeter.map((point, index) => [center, point, perimeter[(index + 1) % perimeter.length]])
+    }
+    case 'apex':
+      return [
+        [{ x: 0, y: 0 }, topCenter, bottomLeft],
+        [topCenter, { x: width, y: 0 }, bottomRight],
+        [topCenter, bottomRight, bottomLeft],
+      ]
   }
 }
 
 const getCutLines = (template: TemplateId, width: number, height: number): [Point, Point][] => {
+  const center = { x: width / 2, y: height / 2 }
+
   switch (template) {
     case 'diagonal':
       return [[{ x: 0, y: 0 }, { x: width, y: height }]]
@@ -71,6 +170,30 @@ const getCutLines = (template: TemplateId, width: number, height: number): [Poin
       return [
         [{ x: 0, y: height / 3 }, { x: width, y: height / 3 }],
         [{ x: 0, y: (height * 2) / 3 }, { x: width, y: (height * 2) / 3 }],
+      ]
+    case 'verticalBands':
+      return getBandLines('vertical', width, height, 6)
+    case 'slashBands':
+      return getBandLines('slash', width, height, 7)
+    case 'backslashBands':
+      return getBandLines('backslash', width, height, 7)
+    case 'radial': {
+      const endpoints = [
+        { x: width / 2, y: 0 },
+        { x: width, y: 0 },
+        { x: width, y: height / 2 },
+        { x: width, y: height },
+        { x: width / 2, y: height },
+        { x: 0, y: height },
+        { x: 0, y: height / 2 },
+        { x: 0, y: 0 },
+      ]
+      return endpoints.map((point) => [center, point])
+    }
+    case 'apex':
+      return [
+        [{ x: width / 2, y: 0 }, { x: 0, y: height }],
+        [{ x: width / 2, y: 0 }, { x: width, y: height }],
       ]
   }
 }
@@ -107,10 +230,14 @@ function ImageEditor({ onBack }: { onBack: () => void }) {
     setLoadError('')
     setSliceError('')
     setExportStatus('')
+    setSource(null)
+    setSlices([])
+    setIsRendering(false)
 
     image.onload = () => {
       URL.revokeObjectURL(objectUrl)
       if (sequence === loadSequence.current) {
+        setIsRendering(true)
         setSource({ image, name: getImageName(file.name) })
       }
     }
@@ -119,6 +246,15 @@ function ImageEditor({ onBack }: { onBack: () => void }) {
       if (sequence === loadSequence.current) setLoadError('This image could not be opened.')
     }
     image.src = objectUrl
+  }
+
+  const handleTemplateChange = (nextTemplate: TemplateId) => {
+    if (nextTemplate === template) return
+    setSlices([])
+    setSliceError('')
+    setExportStatus('')
+    setIsRendering(Boolean(source))
+    setTemplate(nextTemplate)
   }
 
   useEffect(() => {
@@ -159,15 +295,8 @@ function ImageEditor({ onBack }: { onBack: () => void }) {
   useEffect(() => {
     let disposed = false
     const previewUrls: string[] = []
-    setSlices([])
-    setSliceError('')
 
-    if (!source) {
-      setIsRendering(false)
-      return
-    }
-
-    setIsRendering(true)
+    if (!source) return
 
     const renderSlices = async () => {
       try {
@@ -288,11 +417,11 @@ function ImageEditor({ onBack }: { onBack: () => void }) {
               type="button"
               key={item.id}
               aria-pressed={template === item.id}
-              onClick={() => setTemplate(item.id)}
+              onClick={() => handleTemplateChange(item.id)}
             >
               <span className={styles.templateMark} aria-hidden="true">{item.mark}</span>
               <span className={styles.templateCopy}>
-                <span className={styles.templateIndex}>0{index + 1} · {item.pieces} pieces</span>
+                <span className={styles.templateIndex}>{String(index + 1).padStart(2, '0')} · {item.pieces} pieces</span>
                 <span className={styles.templateName}>{item.name}</span>
               </span>
             </button>
