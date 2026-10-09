@@ -3,7 +3,7 @@
   overflow: hidden;
   align-items: center;
   background: linear-gradient(135deg, #433050, #27354f);
-  border: 0;
+  border: 1px solid rgba(255, 189, 133, .3);
   border-radius: 18px;
   box-shadow: 0 18px 40px rgba(152, 103, 35, .14);
   color: var(--ink);

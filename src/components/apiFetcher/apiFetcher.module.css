@@ -3,6 +3,7 @@
   background: linear-gradient(135deg, #183c42, #1b293e);
   border: 1px solid #2d666c;
   border-radius: 18px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, .24);
   color: var(--ink);
   cursor: pointer;
   display: flex;
@@ -14,7 +15,7 @@
   text-align: left;
   transition: transform 220ms ease, box-shadow 220ms ease;
 }
-.apiFetcher:hover, .apiFetcher:focus-visible { box-shadow: var(--shadow); transform: translateY(-5px); }
+.apiFetcher:hover, .apiFetcher:focus-visible { border-color: rgba(102, 227, 220, .7); box-shadow: 0 24px 50px rgba(38, 150, 138, .28); transform: translateY(-5px); }
 .apiFetcher:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
 .apiFetcher__icon { color: var(--cyan); font-size: 32px; }
 .apiFetcher__arrow { color: var(--cyan); font-size: 24px; margin-left: auto; }

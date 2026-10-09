@@ -63,7 +63,7 @@ function App() {
         <header className="dashboard__intro">
           <p className="dashboard__eyebrow">A small collection of useful actions</p>
           <h1>Choose your next move.</h1>
-          <p className="dashboard__subtitle">Six useful actions, arranged with a little intention.</p>
+          <p className="dashboard__subtitle">Nine useful actions, arranged with a little intention.</p>
         </header>
 
         <section className="actionBoard" aria-label="Available actions">
@@ -92,6 +92,28 @@ function App() {
             <button className="advancedCalculator" type="button" onClick={navigateNeedHelp}>
               <span aria-hidden="true">ƒx</span>
               <span>Advanced Calculator</span>
+              <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+          <div className="actionBoard__item actionBoard__item--topIdea">
+            <span className="actionBoard__index">07</span>
+            <button className="ideaButton ideaButton--top" type="button">
+              <span className="ideaButton__icon" aria-hidden="true">↑</span>
+              <span>Top idea</span>
+            </button>
+          </div>
+          <div className="actionBoard__item actionBoard__item--leftIdea">
+            <span className="actionBoard__index">08</span>
+            <button className="ideaButton ideaButton--left" type="button">
+              <span className="ideaButton__icon" aria-hidden="true">←</span>
+              <span>Left idea</span>
+            </button>
+          </div>
+          <div className="actionBoard__item actionBoard__item--rightIdea">
+            <span className="actionBoard__index">09</span>
+            <button className="ideaButton ideaButton--right" type="button">
+              <span className="ideaButton__icon" aria-hidden="true">→</span>
+              <span>Right idea</span>
             </button>
           </div>
         </section>

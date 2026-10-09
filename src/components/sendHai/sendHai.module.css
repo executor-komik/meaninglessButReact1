@@ -1,7 +1,7 @@
 .sendHai {
   align-items: center;
   background: #ffffff;
-  border: 0;
+  border: 1px solid rgba(217, 95, 66, .32);
   border-radius: 18px;
   box-shadow: var(--shadow);
   color: #172033;
