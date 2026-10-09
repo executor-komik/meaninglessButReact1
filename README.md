@@ -28,7 +28,7 @@ This repository is configured to deploy automatically from the `meaninglessReact
 
 The site URL will be:
 
-`https://bentennyson-5.github.io/Execute/`
+`https://executor-komik.github.io/meaninglessButReact1/`
 
 The Vite base path and SPA fallback are configured for this repository, including the `/noice` route.
 
