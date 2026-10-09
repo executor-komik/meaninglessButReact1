@@ -23,7 +23,13 @@ h1 { max-width: 560px; margin: 0; color: var(--ink); font-family: var(--heading)
 .actionBoard__item--top { grid-column: 1 / -1; justify-self: center; animation-delay: 120ms; }
 .actionBoard__item--left { justify-self: end; animation-delay: 240ms; }
 .actionBoard__item--right { animation-delay: 360ms; }
+.actionBoard__item--apiAgain { grid-column: 1 / -1; justify-self: center; animation-delay: 480ms; }
+.actionBoard__item--calculator { justify-self: end; animation-delay: 600ms; }
+.actionBoard__item--advancedCalculator { animation-delay: 720ms; }
 .actionBoard__index { display: block; margin: 0 0 12px 4px; }
+.advancedCalculator { display: flex; align-items: center; justify-content: center; gap: 14px; width: min(310px, 100%); min-height: 118px; padding: 24px 28px; border: 1px solid var(--line); border-radius: 18px; background: #202335; color: var(--muted); font: 700 18px var(--sans); }
+.advancedCalculator span:first-child { color: var(--accent); font: 700 25px var(--mono); }
+.advancedCalculator:disabled { cursor: not-allowed; opacity: .65; }
 
 @keyframes dashboardReveal { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 600px) {

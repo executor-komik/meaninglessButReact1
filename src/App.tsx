@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import ApiFetcher from './components/apiFetcher/ApiFetcher'
 import AnimateSomething from './components/animateSomething/AnimateSomething'
+import Calculator, { CalculatorPage } from './components/calculator/Calculator'
 import SendHai from './components/sendHai/SendHai'
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '')
@@ -25,8 +26,14 @@ function App() {
     setPath('/')
   }
 
+  const navigateCalculator = () => {
+    window.history.pushState({}, '', `${import.meta.env.BASE_URL}calculator`)
+    setPath('/calculator')
+  }
+
   if (path === '/dailyChallenge') return <DailyChallenge onBack={navigateHome} />
   if (path === '/noice') return <Noice onBack={navigateHome} />
+  if (path === '/calculator') return <CalculatorPage onBack={navigateHome} />
 
   return (
     <>
@@ -34,7 +41,7 @@ function App() {
         <header className="dashboard__intro">
           <p className="dashboard__eyebrow">A small collection of useful actions</p>
           <h1>Choose your next move.</h1>
-          <p className="dashboard__subtitle">Three simple tools, arranged with a little intention.</p>
+          <p className="dashboard__subtitle">Six useful actions, arranged with a little intention.</p>
         </header>
 
         <section className="actionBoard" aria-label="Available actions">
@@ -49,6 +56,21 @@ function App() {
           <div className="actionBoard__item actionBoard__item--right">
             <span className="actionBoard__index">03</span>
             <AnimateSomething />
+          </div>
+          <div className="actionBoard__item actionBoard__item--apiAgain">
+            <span className="actionBoard__index">04</span>
+            <ApiFetcher label="API Again" />
+          </div>
+          <div className="actionBoard__item actionBoard__item--calculator">
+            <span className="actionBoard__index">05</span>
+            <Calculator onOpen={navigateCalculator} />
+          </div>
+          <div className="actionBoard__item actionBoard__item--advancedCalculator">
+            <span className="actionBoard__index">06</span>
+            <button className="advancedCalculator" type="button" disabled>
+              <span aria-hidden="true">ƒx</span>
+              <span>Advanced Calculator</span>
+            </button>
           </div>
         </section>
       </main>

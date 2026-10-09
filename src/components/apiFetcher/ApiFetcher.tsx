@@ -1,7 +1,6 @@
-import type { FC } from 'react';
 import styles from './apiFetcher.module.css';
 
-const ApiFetcher: FC = () => {
+const ApiFetcher = ({ label = 'Daily Challenge' }: { label?: string }) => {
 
     const openDailyChallenge = () => {
       window.open('https://leetcode.com/problemset/', '_blank', 'noopener,noreferrer');
@@ -11,7 +10,7 @@ const ApiFetcher: FC = () => {
   return (
     <button type="button" className={styles.apiFetcher} onClick={openDailyChallenge}>
       <span className={styles.apiFetcher__icon}>↯</span>
-      <span>Daily Challenge</span>
+      <span>{label}</span>
       <span className={styles.apiFetcher__arrow}>↗</span>
     </button>
   )
