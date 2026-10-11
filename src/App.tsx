@@ -8,6 +8,7 @@ import AnimateSomething from './components/animateSomething/AnimateSomething'
 import Calculator, { CalculatorPage } from './components/calculator/Calculator'
 import CapitalGainsCalculator from './components/capitalGains/CapitalGainsCalculator'
 import ImageEditor from './components/imageEditor/ImageEditor'
+import NegativeImageConverter from './components/negativeImageConverter/NegativeImageConverter'
 import PanoramaStitcher from './components/panoramaStitcher/PanoramaStitcher'
 import SendHai from './components/sendHai/SendHai'
 import { App as PromiseLessons } from './promiseLessons/App'
@@ -56,12 +57,18 @@ function App() {
     setPath('/stitch')
   }
 
+  const navigateNegative = () => {
+    window.history.pushState({}, '', `${import.meta.env.BASE_URL}negative`)
+    setPath('/negative')
+  }
+
   if (path === '/dailyChallenge') return <DailyChallenge onBack={navigateHome} />
   if (path === '/noice') return <Noice onBack={navigateHome} />
   if (path === '/calculator') return <CalculatorPage onBack={navigateHome} />
   if (path === '/needHelp') return <CapitalGainsCalculator onBack={navigateHome} />
   if (path === '/edit') return <ImageEditor onBack={navigateHome} />
   if (path === '/stitch') return <PanoramaStitcher onBack={navigateHome} />
+  if (path === '/negative') return <NegativeImageConverter onBack={navigateHome} />
   if (path === '/promise-lessons') {
     return (
       <div className="promiseLessonsPage">
@@ -113,21 +120,21 @@ function App() {
             <span className="actionBoard__index">07</span>
             <button className="ideaButton ideaButton--top" type="button" onClick={navigateEdit}>
               <span className="ideaButton__icon" aria-hidden="true">↑</span>
-              <span>Top idea</span>
+              <span>Cut</span>
             </button>
           </div>
           <div className="actionBoard__item actionBoard__item--leftIdea">
             <span className="actionBoard__index">08</span>
             <button className="ideaButton ideaButton--left" type="button" onClick={navigateStitch}>
               <span className="ideaButton__icon" aria-hidden="true">←</span>
-              <span>Left idea</span>
+              <span>Stitch</span>
             </button>
           </div>
           <div className="actionBoard__item actionBoard__item--rightIdea">
             <span className="actionBoard__index">09</span>
-            <button className="ideaButton ideaButton--right" type="button">
+            <button className="ideaButton ideaButton--right" type="button" onClick={navigateNegative}>
               <span className="ideaButton__icon" aria-hidden="true">→</span>
-              <span>Right idea</span>
+              <span>Negative</span>
             </button>
           </div>
         </section>
