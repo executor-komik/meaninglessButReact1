@@ -35,7 +35,7 @@ jobs:
         run: npm run build
 
       - name: Add SPA fallback
-        run: cp dist/index.html dist/404.htmlfrun
+        run: Copy-Item dist/index.html dist/404.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
