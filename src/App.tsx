@@ -27,6 +27,7 @@ const getRoutePath = () => {
 function App() {
   const [path, setPath] = useState(getRoutePath)
   const [isWaving, setIsWaving] = useState(false)
+  const [ideaSearch, setIdeaSearch] = useState('')
 
   useEffect(() => {
     const handlePopState = () => setPath(getRoutePath())
@@ -47,6 +48,19 @@ function App() {
   const navigateEdit = () => navigateTo('/ideas/edit')
   const navigateStitch = () => navigateTo('/ideas/stitch')
   const navigateNegative = () => navigateTo('/ideas/negative')
+  const matchesIdeaSearch = (terms: string) =>
+    terms.toLocaleLowerCase().includes(ideaSearch.trim().toLocaleLowerCase())
+  const visibleIdeas = [
+    'wave hello goodbye',
+    'daily challenge api leetcode',
+    'animate motion noice',
+    'promise lessons fetch weather',
+    'normal calculator maths',
+    'advanced calculator tax capital gains',
+    'cut split image',
+    'stitch panorama images',
+    'negative invert image',
+  ].filter(matchesIdeaSearch).length
 
   const route = path.startsWith('/ideas/') ? path.slice('/ideas'.length) : path
 
@@ -71,33 +85,47 @@ function App() {
       <main className="dashboard">
         <button className="page__backButton" type="button" onClick={navigateHome}>← Portfolio</button>
         <header className="dashboard__intro">
-          <p className="dashboard__eyebrow">A small collection of useful actions</p>
+          <p className="dashboard__eyebrow">Personal playground · 09 experiments</p>
           <h1>Choose your next move.</h1>
-          <p className="dashboard__subtitle">Nine useful actions, arranged with a little intention.</p>
+          <p className="dashboard__subtitle">A collection of handy tools, creative experiments, and small things I&apos;m learning.</p>
         </header>
 
+        <label className="ideasSearch">
+          <span className="ideasSearch__icon" aria-hidden="true">⌕</span>
+          <span className="ideasSearch__label">Find an idea</span>
+          <input
+            type="search"
+            value={ideaSearch}
+            placeholder="Try “calculator” or “image”"
+            onChange={(event) => setIdeaSearch(event.target.value)}
+          />
+          {ideaSearch && (
+            <button type="button" onClick={() => setIdeaSearch('')} aria-label="Clear idea search">×</button>
+          )}
+        </label>
+
         <section className="actionBoard" aria-label="Available actions">
-          <div className="actionBoard__item actionBoard__item--top">
+          <div className="actionBoard__item actionBoard__item--top" hidden={!matchesIdeaSearch('wave hello goodbye')}>
             <span className="actionBoard__index">01</span>
             <SendHai onWave={() => setIsWaving(true)} />
           </div>
-          <div className="actionBoard__item actionBoard__item--left">
+          <div className="actionBoard__item actionBoard__item--left" hidden={!matchesIdeaSearch('daily challenge api leetcode')}>
             <span className="actionBoard__index">02</span>
             <ApiFetcher />
           </div>
-          <div className="actionBoard__item actionBoard__item--right">
+          <div className="actionBoard__item actionBoard__item--right" hidden={!matchesIdeaSearch('animate motion noice')}>
             <span className="actionBoard__index">03</span>
             <AnimateSomething />
           </div>
-          <div className="actionBoard__item actionBoard__item--apiAgain">
+          <div className="actionBoard__item actionBoard__item--apiAgain" hidden={!matchesIdeaSearch('promise lessons fetch weather')}>
             <span className="actionBoard__index">04</span>
             <ApiFetcher label="API Again" onClick={navigatePromiseLessons} />
           </div>
-          <div className="actionBoard__item actionBoard__item--calculator">
+          <div className="actionBoard__item actionBoard__item--calculator" hidden={!matchesIdeaSearch('normal calculator maths')}>
             <span className="actionBoard__index">05</span>
             <Calculator onOpen={navigateCalculator} />
           </div>
-          <div className="actionBoard__item actionBoard__item--advancedCalculator">
+          <div className="actionBoard__item actionBoard__item--advancedCalculator" hidden={!matchesIdeaSearch('advanced calculator tax capital gains')}>
             <span className="actionBoard__index">06</span>
             <button className="advancedCalculator" type="button" onClick={navigateNeedHelp}>
               <span aria-hidden="true">ƒx</span>
@@ -105,21 +133,21 @@ function App() {
               <span aria-hidden="true">↗</span>
             </button>
           </div>
-          <div className="actionBoard__item actionBoard__item--topIdea">
+          <div className="actionBoard__item actionBoard__item--topIdea" hidden={!matchesIdeaSearch('cut split image')}>
             <span className="actionBoard__index">07</span>
             <button className="ideaButton ideaButton--top" type="button" onClick={navigateEdit}>
               <span className="ideaButton__icon" aria-hidden="true">↑</span>
               <span>Cut</span>
             </button>
           </div>
-          <div className="actionBoard__item actionBoard__item--leftIdea">
+          <div className="actionBoard__item actionBoard__item--leftIdea" hidden={!matchesIdeaSearch('stitch panorama images')}>
             <span className="actionBoard__index">08</span>
             <button className="ideaButton ideaButton--left" type="button" onClick={navigateStitch}>
               <span className="ideaButton__icon" aria-hidden="true">←</span>
               <span>Stitch</span>
             </button>
           </div>
-          <div className="actionBoard__item actionBoard__item--rightIdea">
+          <div className="actionBoard__item actionBoard__item--rightIdea" hidden={!matchesIdeaSearch('negative invert image')}>
             <span className="actionBoard__index">09</span>
             <button className="ideaButton ideaButton--right" type="button" onClick={navigateNegative}>
               <span className="ideaButton__icon" aria-hidden="true">→</span>
@@ -127,6 +155,9 @@ function App() {
             </button>
           </div>
         </section>
+        {visibleIdeas === 0 && (
+          <p className="ideasSearch__empty">No matching ideas yet. Try another search.</p>
+        )}
       </main>
       {isWaving && <WavingHand onClose={() => setIsWaving(false)} />}
       {/* <section id="center">

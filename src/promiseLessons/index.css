@@ -1,26 +1,29 @@
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-}
-
 .playground {
-  min-height: 100vh;
-  padding: 24px;
-  background: #0f1115;
-  color: #e8e8ec;
-  font-family: system-ui, sans-serif;
+  width: min(980px, 100%);
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: clamp(26px, 6vw, 72px) clamp(18px, 5vw, 56px) 64px;
+  color: var(--text);
 }
 
 .playground h1 {
-  margin: 0 0 8px;
-  font-size: 1.25rem;
+  max-width: none;
+  margin: 20px 0 10px;
+  color: var(--ink);
+  font: 700 clamp(38px, 7vw, 64px)/1.05 var(--heading);
+  letter-spacing: -2px;
 }
 
 .hint {
-  margin: 0 0 20px;
-  font-size: 0.875rem;
-  opacity: 0.75;
+  max-width: 640px;
+  margin: 0 0 32px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+@media (max-width: 600px) {
+  .playground {
+    padding: 26px 16px 48px;
+  }
 }

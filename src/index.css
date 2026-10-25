@@ -17,11 +17,20 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
 }
 
 * { box-sizing: border-box; }
-html { scrollbar-width: none; }
+html { min-width: 320px; scrollbar-width: thin; scrollbar-color: #333b50 #0b0d16; }
 html::-webkit-scrollbar { display: none; }
 body { margin: 0; min-width: 320px; background: var(--bg); }
 #root { min-height: 100svh; }
 p { margin: 0; }
+button, input, select, textarea { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+::selection { color: #071513; background: var(--cyan); }
+:focus-visible { outline-color: var(--cyan); }
+
+@media (max-width: 600px) {
+  :root { font-size: 16px; }
+}
