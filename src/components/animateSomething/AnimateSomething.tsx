@@ -2,7 +2,7 @@ import styles from './animateSomething.module.css'
 
 const AnimateSomething = () => {
   const openNoice = () => {
-    window.history.pushState({}, '', `${import.meta.env.BASE_URL}noice`)
+    window.history.pushState({}, '', `${import.meta.env.BASE_URL}ideas/noice`)
     window.dispatchEvent(new PopStateEvent('popstate'))
   }
 

@@ -15,7 +15,14 @@ import { App as PromiseLessons } from './promiseLessons/App'
 import './promiseLessons/index.css'
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '')
-const getRoutePath = () => window.location.pathname.replace(basePath, '') || '/'
+const getRoutePath = () => {
+  const pathname = window.location.pathname
+  if (basePath && pathname === basePath) return '/'
+  const path = basePath && pathname.startsWith(`${basePath}/`)
+    ? pathname.slice(basePath.length)
+    : pathname
+  return path.replace(/\/$/, '') || '/'
+}
 
 function App() {
   const [path, setPath] = useState(getRoutePath)
@@ -27,60 +34,42 @@ function App() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
-  const navigateHome = () => {
-    window.history.pushState({}, '', import.meta.env.BASE_URL)
-    setPath('/')
+  const navigateTo = (route: string) => {
+    window.history.pushState({}, '', `${import.meta.env.BASE_URL}${route.replace(/^\//, '')}`)
+    setPath(route)
   }
 
-  const navigateCalculator = () => {
-    window.history.pushState({}, '', `${import.meta.env.BASE_URL}calculator`)
-    setPath('/calculator')
-  }
+  const navigateHome = () => navigateTo('/')
+  const navigateIdeas = () => navigateTo('/ideas')
+  const navigateCalculator = () => navigateTo('/ideas/calculator')
+  const navigatePromiseLessons = () => navigateTo('/ideas/promise-lessons')
+  const navigateNeedHelp = () => navigateTo('/ideas/needHelp')
+  const navigateEdit = () => navigateTo('/ideas/edit')
+  const navigateStitch = () => navigateTo('/ideas/stitch')
+  const navigateNegative = () => navigateTo('/ideas/negative')
 
-  const navigatePromiseLessons = () => {
-    window.history.pushState({}, '', `${import.meta.env.BASE_URL}promise-lessons`)
-    setPath('/promise-lessons')
-  }
+  const route = path.startsWith('/ideas/') ? path.slice('/ideas'.length) : path
 
-  const navigateNeedHelp = () => {
-    window.history.pushState({}, '', `${import.meta.env.BASE_URL}needHelp`)
-    setPath('/needHelp')
-  }
-
-  const navigateEdit = () => {
-    window.history.pushState({}, '', `${import.meta.env.BASE_URL}edit`)
-    setPath('/edit')
-  }
-
-  const navigateStitch = () => {
-    window.history.pushState({}, '', `${import.meta.env.BASE_URL}stitch`)
-    setPath('/stitch')
-  }
-
-  const navigateNegative = () => {
-    window.history.pushState({}, '', `${import.meta.env.BASE_URL}negative`)
-    setPath('/negative')
-  }
-
-  if (path === '/dailyChallenge') return <DailyChallenge onBack={navigateHome} />
-  if (path === '/noice') return <Noice onBack={navigateHome} />
-  if (path === '/calculator') return <CalculatorPage onBack={navigateHome} />
-  if (path === '/needHelp') return <CapitalGainsCalculator onBack={navigateHome} />
-  if (path === '/edit') return <ImageEditor onBack={navigateHome} />
-  if (path === '/stitch') return <PanoramaStitcher onBack={navigateHome} />
-  if (path === '/negative') return <NegativeImageConverter onBack={navigateHome} />
-  if (path === '/promise-lessons') {
+  if (route === '/dailyChallenge') return <DailyChallenge onBack={navigateIdeas} />
+  if (route === '/noice') return <Noice onBack={navigateIdeas} />
+  if (route === '/calculator') return <CalculatorPage onBack={navigateIdeas} />
+  if (route === '/needHelp') return <CapitalGainsCalculator onBack={navigateIdeas} />
+  if (route === '/edit') return <ImageEditor onBack={navigateIdeas} />
+  if (route === '/stitch') return <PanoramaStitcher onBack={navigateIdeas} />
+  if (route === '/negative') return <NegativeImageConverter onBack={navigateIdeas} />
+  if (route === '/promise-lessons') {
     return (
       <div className="promiseLessonsPage">
-        <button className="page__backButton" type="button" onClick={navigateHome}>← Home</button>
+        <button className="page__backButton" type="button" onClick={navigateIdeas}>← Ideas</button>
         <PromiseLessons />
       </div>
     )
   }
 
-  return (
+  if (path === '/ideas') return (
     <>
       <main className="dashboard">
+        <button className="page__backButton" type="button" onClick={navigateHome}>← Portfolio</button>
         <header className="dashboard__intro">
           <p className="dashboard__eyebrow">A small collection of useful actions</p>
           <h1>Choose your next move.</h1>
@@ -248,6 +237,66 @@ function App() {
       <section id="spacer"></section> */}
     </>
   )
+
+  return <PortfolioPage onOpenIdeas={navigateIdeas} />
+}
+
+function PortfolioPage({ onOpenIdeas }: { onOpenIdeas: () => void }) {
+  return (
+    <main className="portfolio">
+      <header className="portfolio__nav">
+        <a className="portfolio__brand" href="#top">YN<span>.</span></a>
+        <a className="portfolio__navLink" href="#about">About</a>
+      </header>
+
+      <section className="portfolio__hero" id="top">
+        <p className="portfolio__eyebrow">Portfolio · {new Date().getFullYear()}</p>
+        <p className="portfolio__hello">Hello, I&apos;m</p>
+        <h1>Your Name<span>.</span></h1>
+        <p className="portfolio__role">Developer · maker · curious mind</p>
+        <p className="portfolio__summary">
+          I enjoy turning ideas into useful, thoughtful digital experiences.
+          This is a little corner of the internet where I share what I&apos;m
+          learning and building.
+        </p>
+        <a className="portfolio__contact" href="mailto:hello@example.com">Get in touch <span>↗</span></a>
+        <div className="portfolio__orbit portfolio__orbit--one" aria-hidden="true" />
+        <div className="portfolio__orbit portfolio__orbit--two" aria-hidden="true" />
+      </section>
+
+      <section className="portfolio__about" id="about">
+        <div>
+          <p className="portfolio__eyebrow">A little about me</p>
+          <h2>Building things, one idea at a time.</h2>
+        </div>
+        <p>
+          I&apos;m a developer who likes solving problems, exploring new
+          technologies, and making the web more useful. I&apos;m currently
+          focused on growing my skills through hands-on projects.
+        </p>
+      </section>
+
+      <section className="portfolio__focus">
+        <p className="portfolio__eyebrow">What I enjoy</p>
+        <div className="portfolio__focusGrid">
+          <article><span>01</span><h3>Frontend craft</h3><p>Building clean, responsive interfaces.</p></article>
+          <article><span>02</span><h3>Creative tools</h3><p>Making small ideas genuinely useful.</p></article>
+          <article><span>03</span><h3>Always learning</h3><p>Trying, iterating, and getting better.</p></article>
+        </div>
+      </section>
+
+      <footer className="portfolio__footer">
+        <div>
+          <p className="portfolio__eyebrow">Curious about the experiments?</p>
+          <h2>Explore my ideas.</h2>
+          <p className="portfolio__footerCopy">Small tools, creative experiments, and things I&apos;ve been learning.</p>
+        </div>
+        <button className="portfolio__ideasButton" type="button" onClick={onOpenIdeas}>
+          Ideas <span aria-hidden="true">↗</span>
+        </button>
+      </footer>
+    </main>
+  )
 }
 
 function DailyChallenge({ onBack }: { onBack: () => void }) {
@@ -266,7 +315,7 @@ function DailyChallenge({ onBack }: { onBack: () => void }) {
 
   return (
     <main className="page page--challenge">
-      <button className="page__backButton" type="button" onClick={onBack}>← Home</button>
+      <button className="page__backButton" type="button" onClick={onBack}>← Ideas</button>
       <div className="page__heading">
         <p className="page__eyebrow">Daily practice</p>
         <h1>Today&apos;s challenge.</h1>
@@ -291,7 +340,7 @@ function DailyChallenge({ onBack }: { onBack: () => void }) {
 function Noice({ onBack }: { onBack: () => void }) {
   return (
     <main className="page page--noice">
-      <button className="page__backButton page__backButton--noice" type="button" onClick={onBack}>← Home</button>
+      <button className="page__backButton page__backButton--noice" type="button" onClick={onBack}>← Ideas</button>
       <div className="page__noiceCopy"><p className="page__eyebrow">Noice mode</p><h1>Let it bounce.</h1></div>
       <div className="page__bouncer" aria-label="An infinitely bouncing shape" />
     </main>

@@ -1,6 +1,7 @@
 # Execute
 
-A small React + TypeScript playground for useful actions, animated experiments, and a little frontend whimsy.
+A React + TypeScript portfolio with a separate `/ideas` area for tools,
+experiments, and learning projects.
 
 ## Local development
 
@@ -30,12 +31,15 @@ The site URL will be:
 
 `https://executor-komik.github.io/meaninglessButReact1/`
 
-The Vite base path and SPA fallback are configured for this repository, including the `/noice` route.
+The root URL is the portfolio. The **Ideas** button at the bottom opens `/ideas`;
+individual tools use routes such as `/ideas/calculator` and `/ideas/needHelp`.
+GitHub Pages is configured with an SPA fallback so direct links and refreshes on
+these nested routes load the app.
 
 ## Capital gains calculator
 
-Choose **Advanced Calculator** on the dashboard to open `/needHelp`. Enter purchase
-and sale transactions with investment name/type, date, quantity, and total amount,
+From `/ideas`, choose **Advanced Calculator** to open `/ideas/needHelp`. Enter
+purchase and sale transactions with investment name/type, date, quantity, and total amount,
 then press **Calculate my gains**. Sales are matched FIFO to purchases with the same
 name and investment type; the calculator derives holding period and gain/loss from
 the matched cost and sale proceeds. Results are separated by asset type, term, and

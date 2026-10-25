@@ -557,7 +557,7 @@ const CapitalGainsCalculator = ({ onBack }: { onBack: () => void }) => {
 
   return (
     <main className={styles.page}>
-      <button className="page__backButton" type="button" onClick={onBack}>← Home</button>
+      <button className="page__backButton" type="button" onClick={onBack}>← Ideas</button>
 
       <header className={styles.header}>
         <p className={styles.eyebrow}>India · capital gains</p>

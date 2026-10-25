@@ -142,7 +142,7 @@ export const CalculatorPage = ({ onBack }: { onBack: () => void }) => {
   return (
     <main className={styles.calculatorPage}>
       <button className={`page__backButton ${styles.calculatorPage__backButton}`} type="button" onClick={onBack}>
-        ← Home
+        ← Ideas
       </button>
       <output className={styles.calculator__display} aria-live="polite" aria-label="Calculator display">
         {displayText}

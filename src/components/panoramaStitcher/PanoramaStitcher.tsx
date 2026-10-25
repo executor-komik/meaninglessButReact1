@@ -310,7 +310,7 @@ function PanoramaStitcher({ onBack }: { onBack: () => void }) {
       <header className={styles.toolbar}>
         <div className={styles.toolbarInner}>
           <div className={styles.brandGroup}>
-            <button className={styles.backButton} type="button" onClick={onBack} aria-label="Back to dashboard">←</button>
+            <button className={styles.backButton} type="button" onClick={onBack} aria-label="Back to ideas">←</button>
             <div>
               <p className={styles.eyebrow}>Canvas tools / 02</p>
               <h1 className={styles.title}>Panorama stitch</h1>
