@@ -11,7 +11,6 @@ import ImageEditor from './components/imageEditor/ImageEditor'
 import NegativeImageConverter from './components/negativeImageConverter/NegativeImageConverter'
 import PanoramaStitcher from './components/panoramaStitcher/PanoramaStitcher'
 import SendHai from './components/sendHai/SendHai'
-import Trial from './components/trial/Trial'
 import { App as PromiseLessons } from './promiseLessons/App'
 import './promiseLessons/index.css'
 
@@ -49,7 +48,6 @@ function App() {
   const navigateEdit = () => navigateTo('/ideas/edit')
   const navigateStitch = () => navigateTo('/ideas/stitch')
   const navigateNegative = () => navigateTo('/ideas/negative')
-  const navigateTrial = () => navigateTo('/ideas/trial')
   const matchesIdeaSearch = (terms: string) =>
     terms.toLocaleLowerCase().includes(ideaSearch.trim().toLocaleLowerCase())
   const visibleIdeas = [
@@ -62,7 +60,6 @@ function App() {
     'cut split image',
     'stitch panorama images',
     'negative invert image',
-    'trial short video subs gen captions subtitles speech',
   ].filter(matchesIdeaSearch).length
 
   const route = path.startsWith('/ideas/') ? path.slice('/ideas'.length) : path
@@ -74,7 +71,6 @@ function App() {
   if (route === '/edit') return <ImageEditor onBack={navigateIdeas} />
   if (route === '/stitch') return <PanoramaStitcher onBack={navigateIdeas} />
   if (route === '/negative') return <NegativeImageConverter onBack={navigateIdeas} />
-  if (route === '/trial') return <Trial onBack={navigateIdeas} />
   if (route === '/promise-lessons') {
     return (
       <div className="promiseLessonsPage">
@@ -89,7 +85,7 @@ function App() {
       <main className="dashboard">
         <button className="page__backButton" type="button" onClick={navigateHome}>← Portfolio</button>
         <header className="dashboard__intro">
-          <p className="dashboard__eyebrow">Personal playground · 10 experiments</p>
+          <p className="dashboard__eyebrow">Personal playground · 9 experiments</p>
           <h1>Choose your next move.</h1>
           <p className="dashboard__subtitle">A collection of handy tools, creative experiments, and small things I&apos;m learning.</p>
         </header>
@@ -156,14 +152,6 @@ function App() {
             <button className="ideaButton ideaButton--right" type="button" onClick={navigateNegative}>
               <span className="ideaButton__icon" aria-hidden="true">→</span>
               <span>Negative</span>
-            </button>
-          </div>
-          <div className="actionBoard__item actionBoard__item--trial" hidden={!matchesIdeaSearch('trial short video subs gen captions subtitles speech')}>
-            <span className="actionBoard__index">10</span>
-            <button className="ideaButton ideaButton--trial" type="button" onClick={navigateTrial}>
-              <span className="ideaButton__icon" aria-hidden="true">CC</span>
-              <span>Short Video Subs Gen</span>
-              <span className="ideaButton__arrow" aria-hidden="true">↗</span>
             </button>
           </div>
         </section>
