@@ -1,0 +1,57 @@
+.trialPage {
+  position: relative;
+  min-height: 100svh;
+  padding: clamp(88px, 10vh, 118px) 24px 64px;
+  background: radial-gradient(circle at 75% 16%, rgba(32, 112, 129, .18), transparent 30%), var(--bg);
+}
+
+.trialPage__backButton { position: absolute; top: 24px; left: 24px; }
+.trialWorkspace { width: min(820px, 100%); margin: 0 auto; }
+.trialHeader { margin-bottom: 30px; }
+.trialEyebrow { margin-bottom: 12px; color: var(--cyan); font: 700 11px var(--mono); letter-spacing: 1px; text-transform: uppercase; }
+.trialHeader h1 { font-size: 56px; letter-spacing: 0; line-height: 1; }
+.trialHeader > p:last-child { max-width: 620px; margin-top: 14px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+
+.trialSettings { display: grid; grid-template-columns: minmax(180px, 1fr) 100px 100px 150px; gap: 12px; margin-bottom: 18px; }
+.trialField { display: flex; min-width: 0; flex-direction: column; gap: 7px; color: var(--muted); font: 700 11px var(--mono); text-transform: uppercase; }
+.trialField select, .trialField input:not([type='color']) { width: 100%; height: 42px; padding: 0 11px; border: 1px solid var(--line); border-radius: 8px; background: #171d29; color: var(--ink); font: 14px var(--sans); text-transform: none; }
+.trialField input[type='color'] { width: 100%; height: 42px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; background: #171d29; cursor: pointer; }
+.trialField select:focus-visible, .trialField input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+.uploadZone { display: flex; min-height: 190px; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 22px; border: 1px dashed rgba(102, 227, 220, .48); border-radius: 12px; background: rgba(21, 33, 39, .76); cursor: pointer; text-align: center; transition: background 180ms ease, border-color 180ms ease; }
+.uploadZone:hover { border-color: var(--cyan); background: rgba(26, 51, 56, .8); }
+.uploadZone input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%); white-space: nowrap; }
+.uploadZone:focus-within { outline: 3px solid rgba(102, 227, 220, .45); outline-offset: 3px; }
+.uploadZone__disabled { cursor: progress; opacity: .7; }
+.uploadZone__icon { display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid rgba(102, 227, 220, .35); border-radius: 50%; color: var(--cyan); font: 28px var(--sans); }
+.uploadZone__title { color: var(--ink); font: 700 18px var(--sans); }
+.uploadZone__details, .uploadZone__filename { color: var(--muted); font-size: 12px; }
+.uploadZone__filename { max-width: 100%; overflow-wrap: anywhere; color: var(--cyan); }
+.trialStatus, .trialError { display: flex; align-items: center; gap: 10px; margin-top: 16px; padding: 13px 15px; border: 1px solid var(--line); border-radius: 8px; background: rgba(21, 26, 37, .82); color: var(--text); font-size: 13px; }
+.trialError { border-color: rgba(255, 139, 139, .4); color: #ffaaaa; }
+.trialSpinner { flex: 0 0 14px; width: 14px; height: 14px; border: 2px solid rgba(102, 227, 220, .3); border-top-color: var(--cyan); border-radius: 50%; animation: trialSpin 800ms linear infinite; }
+
+.resultSection { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+.resultHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.resultHeader h2 { margin: 0; color: var(--ink); font: 700 22px var(--heading); }
+.resultHeader p { margin-top: 6px; color: var(--muted); font-size: 12px; }
+.downloadActions { display: flex; flex-wrap: wrap; gap: 8px; }
+.downloadActions button, .downloadActions__primary { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; padding: 0 12px; border: 1px solid rgba(102, 227, 220, .35); border-radius: 7px; background: #173a3b; color: var(--ink); cursor: pointer; font: 700 12px var(--sans); text-decoration: none; }
+.downloadActions__primary { border-color: #77decf; background: #23776b; }
+.downloadActions button:hover, .downloadActions button:focus-visible, .downloadActions__primary:hover, .downloadActions__primary:focus-visible { border-color: var(--cyan); background: #20504e; }
+.downloadActions button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.downloadActions__primary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.renderedVideo { display: block; width: min(420px, 100%); max-height: 620px; margin: 18px auto 0; border: 1px solid var(--line); border-radius: 10px; background: #080b10; object-fit: contain; }
+.captionPreview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; padding: 16px; border: 1px solid var(--line); border-radius: 8px; background: #101721; }
+.captionPreview span { color: var(--ink); font: 700 15px var(--sans); }
+.captionPreview span:nth-child(4n) { color: var(--accent); }
+.formatNote { margin-top: 12px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+
+@keyframes trialSpin { to { transform: rotate(360deg); } }
+
+@media (max-width: 620px) {
+  .trialPage { padding: 84px 18px 40px; }
+  .trialSettings { grid-template-columns: 1fr 1fr; }
+  .trialField:first-child { grid-column: 1 / -1; }
+  .resultHeader { flex-direction: column; }
+}

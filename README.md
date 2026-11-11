@@ -10,6 +10,20 @@ npm install
 npm run dev
 ```
 
+## Local short video captions
+
+The Short Video Subs Gen tool runs locally and renders word-timed karaoke captions directly into a new MP4. It accepts videos up to 3 minutes and 100 MB. The source video is not sent to a transcription service; it is deleted after processing. Rendered MP4 files expire from `backend/.outputs` after 24 hours. Optional SRT, VTT, and styled ASS sidecars are available too.
+
+Start the frontend and local caption backend together with:
+
+```powershell
+npm run trial
+```
+
+The first run creates `backend/.venv` and installs the backend dependencies, including a bundled FFmpeg executable. The small Whisper model downloads after the first video is selected. Processing is CPU-based and may take a few minutes on this laptop. The app is for local use; GitHub Pages does not run the backend.
+
+The rendered MP4 uses the selected font, text color, and word-highlight color. SRT/VTT are optional standard subtitle files; ASS preserves word-level karaoke timing and styling.
+
 Before publishing, verify the project with:
 
 ```bash

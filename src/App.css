@@ -32,6 +32,7 @@ h1 { max-width: 560px; margin: 0; color: var(--ink); font-family: var(--heading)
 .actionBoard__item--topIdea { grid-column: 1 / -1; justify-self: center; width: min(310px, calc((100% - clamp(28px, 5vw, 72px)) / 2)); animation-delay: 840ms; }
 .actionBoard__item--leftIdea { justify-self: end; animation-delay: 960ms; }
 .actionBoard__item--rightIdea { justify-self: start; animation-delay: 1080ms; }
+.actionBoard__item--trial { grid-column: 1 / -1; justify-self: center; width: min(310px, 100%); animation-delay: 1200ms; }
 .actionBoard__index { display: block; margin: 0 0 12px 4px; }
 .ideasSearch { position: relative; display: flex; align-items: center; gap: 12px; width: min(540px, 100%); min-height: 54px; margin: -42px auto 38px; padding: 0 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(20, 24, 40, .88); box-shadow: 0 14px 34px rgba(0, 0, 0, .18); }
 .ideasSearch:focus-within { border-color: rgba(102, 227, 220, .65); box-shadow: 0 0 0 4px rgba(102, 227, 220, .08); }
@@ -55,6 +56,8 @@ h1 { max-width: 560px; margin: 0; color: var(--ink); font-family: var(--heading)
 .ideaButton--top { --idea-border: rgba(255, 193, 141, .35); --idea-border-hover: rgba(255, 193, 141, .75); --idea-background: linear-gradient(135deg, #493c2b, #3b3028); --idea-shadow: rgba(226, 139, 79, .28); --idea-accent: #ffc18d; }
 .ideaButton--left { --idea-border: rgba(155, 196, 224, .35); --idea-border-hover: rgba(155, 196, 224, .75); --idea-background: linear-gradient(135deg, #2c4353, #273341); --idea-shadow: rgba(86, 157, 194, .28); --idea-accent: #a6d7ef; }
 .ideaButton--right { --idea-border: rgba(235, 173, 143, .35); --idea-border-hover: rgba(235, 173, 143, .75); --idea-background: linear-gradient(135deg, #493943, #352f3b); --idea-shadow: rgba(204, 118, 106, .28); --idea-accent: #f0af91; }
+.ideaButton--trial { --idea-border: rgba(102, 227, 220, .36); --idea-border-hover: rgba(102, 227, 220, .78); --idea-background: linear-gradient(135deg, #194844, #203b42); --idea-shadow: rgba(38, 150, 138, .28); --idea-accent: #8df0dc; }
+.ideaButton__arrow { margin-left: auto; color: var(--cyan); font-size: 24px; }
 .actionBoard__item[hidden] { display: none; }
 .actionBoard__item > button { width: 100%; }
 
