@@ -10,6 +10,22 @@ npm install
 npm run dev
 ```
 
+## Android app
+
+The Android wrapper uses Capacitor. Install Android Studio with JDK 17 and the
+Android 16 (API 36) SDK, then run:
+
+```bash
+npm run android:sync
+npm run android:open
+```
+
+In Android Studio, run the `android` project on a device or emulator. The app
+uses the `com.executor.komiktools` application ID. Its only declared Android
+permission is Internet access; image selection uses the system file picker.
+The Android build uses a root asset path, while the regular web build remains
+configured for GitHub Pages.
+
 Before publishing, verify the project with:
 
 ```bash

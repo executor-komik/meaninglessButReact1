@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Komik</string>
+    <string name="title_activity_main">Komik</string>
+    <string name="package_name">com.executor.komiktools</string>
+    <string name="custom_url_scheme">com.executor.komiktools</string>
+</resources>
