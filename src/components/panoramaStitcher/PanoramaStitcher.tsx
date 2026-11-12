@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent, type DragEvent } from 'react'
+import { saveFile } from '../../native/FileSaver'
 import styles from './panoramaStitcher.module.css'
 
 type StitchImage = {
@@ -12,6 +13,7 @@ type StitchImage = {
 
 type MergedImage = {
   url: string
+  blob: Blob
   fileName: string
   width: number
   height: number
@@ -271,6 +273,7 @@ function PanoramaStitcher({ onBack }: { onBack: () => void }) {
       mergedUrls.current.add(url)
       setMergedImage({
         url,
+        blob,
         fileName: 'panorama-stitched.png',
         width: canvasWidth,
         height: canvasHeight,
@@ -283,6 +286,18 @@ function PanoramaStitcher({ onBack }: { onBack: () => void }) {
       setErrorMessage(error instanceof Error ? error.message : 'The images could not be stitched.')
     } finally {
       setIsStitching(false)
+    }
+  }
+
+  const downloadMergedImage = async () => {
+    if (!mergedImage) return
+    try {
+      const saved = await saveFile(mergedImage.blob, mergedImage.fileName)
+      setErrorMessage('')
+      setStatusMessage(saved ? 'Stitched PNG saved.' : 'PNG save cancelled.')
+    } catch (error) {
+      setStatusMessage('')
+      setErrorMessage(error instanceof Error ? `PNG save failed: ${error.message}` : 'PNG save failed.')
     }
   }
 
@@ -427,9 +442,9 @@ function PanoramaStitcher({ onBack }: { onBack: () => void }) {
               <p className={styles.formatHint}>Transparent PNG · alpha-preserving output</p>
             </div>
             <div className={styles.outputActions}>
-              <a className={styles.downloadButton} href={mergedImage?.url} download={mergedImage?.fileName} aria-disabled={!mergedImage} onClick={(event) => { if (!mergedImage) event.preventDefault() }}>
+              <button className={styles.downloadButton} type="button" onClick={() => void downloadMergedImage()} disabled={!mergedImage}>
                 <span aria-hidden="true">↓</span> Download Merged Image
-              </a>
+              </button>
             </div>
           </div>
 

@@ -23,6 +23,7 @@ npm run android:open
 In Android Studio, run the `android` project on a device or emulator. The app
 uses the `com.executor.komiktools` application ID. Its only declared Android
 permission is Internet access; image selection uses the system file picker.
+Generated PNG and PDF exports use Android's system save-location picker.
 The Android build uses a root asset path, while the regular web build remains
 configured for GitHub Pages.
 

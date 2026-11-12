@@ -97,7 +97,7 @@
 .outputActions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 9px; }
 .downloadButton { min-height: 38px; padding-inline: 12px; border-color: var(--stitch-accent); background: transparent; color: var(--stitch-accent); cursor: pointer; font-size: 11px; white-space: nowrap; }
 .downloadButton:hover:not([aria-disabled="true"]) { transform: translateY(-2px); background: rgba(215, 243, 107, .1); box-shadow: 0 10px 28px rgba(215, 243, 107, .1); }
-.downloadButton[aria-disabled="true"] { opacity: .38; cursor: not-allowed; }
+.downloadButton:disabled { opacity: .38; cursor: not-allowed; }
 .mergedPanel { overflow: hidden; border: 1px solid var(--stitch-line); border-radius: 8px; background: var(--stitch-panel); }
 .mergedImageFrame { display: grid; place-items: center; min-height: 180px; max-height: 420px; padding: 18px; overflow: auto; background-color: #10171b; background-image: linear-gradient(45deg, #172126 25%, transparent 25%), linear-gradient(-45deg, #172126 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #172126 75%), linear-gradient(-45deg, transparent 75%, #172126 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0; }
 .mergedImageFrame img { display: block; max-width: 100%; max-height: 380px; width: auto; height: auto; object-fit: contain; }

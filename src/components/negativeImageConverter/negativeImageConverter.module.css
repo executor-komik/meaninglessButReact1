@@ -63,9 +63,10 @@
 .imageResultName { display: flex; align-items: center; gap: 10px; min-width: 0; color: var(--negative-text); font-size: 12px; font-weight: 700; }
 .imageResultName > span:first-child { flex: 0 0 auto; color: var(--negative-accent); font: 10px var(--mono); }
 .imageDimensions { margin-left: auto; color: var(--negative-muted); font: 10px var(--mono); white-space: nowrap; }
-.individualDownload { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 34px; padding: 0 11px; border: 1px solid var(--negative-line); border-radius: 6px; color: var(--negative-text); cursor: pointer; font: 700 10px var(--sans); text-decoration: none; white-space: nowrap; transition: border-color 150ms ease, background 150ms ease; }
+.individualDownload { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 34px; padding: 0 11px; border: 1px solid var(--negative-line); border-radius: 6px; background: transparent; color: var(--negative-text); cursor: pointer; font: 700 10px var(--sans); text-decoration: none; white-space: nowrap; transition: border-color 150ms ease, background 150ms ease; }
 .individualDownload > span { color: var(--negative-accent); font-size: 15px; }
 .individualDownload:hover { border-color: var(--negative-accent); background: rgba(247, 140, 104, .08); }
+.individualDownload:disabled { cursor: wait; opacity: .58; }
 .individualDownload:focus-visible { outline: 2px solid var(--negative-accent); outline-offset: 3px; }
 .comparison { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .previewPanel { min-width: 0; margin: 0; overflow: hidden; border: 1px solid var(--negative-line); border-radius: 8px; background: var(--negative-panel); }

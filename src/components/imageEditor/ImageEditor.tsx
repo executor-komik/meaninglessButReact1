@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { saveFile } from '../../native/FileSaver'
 import styles from './imageEditor.module.css'
 
 type Point = { x: number; y: number }
@@ -342,24 +343,30 @@ function ImageEditor({ onBack }: { onBack: () => void }) {
     }
   }, [source, template])
 
-  const saveSlice = (slice: SlicePreview) => {
-    if (!source) return
-    const url = URL.createObjectURL(slice.blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `${source.name}_slice_${String(slice.index).padStart(2, '0')}.png`
-    document.body.append(link)
-    link.click()
-    link.remove()
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000)
+  const saveSlice = async (slice: SlicePreview): Promise<boolean> => {
+    if (!source) return false
+    const fileName = `${source.name}_slice_${String(slice.index).padStart(2, '0')}.png`
+    try {
+      const saved = await saveFile(slice.blob, fileName)
+      setSliceError('')
+      setExportStatus(saved ? `${fileName} saved.` : 'PNG save cancelled.')
+      return saved
+    } catch (error) {
+      setExportStatus('')
+      setSliceError(error instanceof Error ? `PNG save failed: ${error.message}` : 'PNG save failed.')
+      return false
+    }
   }
 
-  const exportAllSlices = () => {
+  const exportAllSlices = async () => {
     if (!slices.length) return
-    slices.forEach((slice, index) => {
-      window.setTimeout(() => saveSlice(slice), index * 180)
-    })
-    setExportStatus(`${slices.length} PNG downloads started.`)
+    setSliceError('')
+    for (const [index, slice] of slices.entries()) {
+      setExportStatus(`Choose where to save PNG ${index + 1} of ${slices.length}.`)
+      const saved = await saveSlice(slice)
+      if (!saved) return
+    }
+    setExportStatus(`${slices.length} PNG files saved.`)
   }
 
   return (
@@ -382,7 +389,7 @@ function ImageEditor({ onBack }: { onBack: () => void }) {
               <span>{source ? 'Replace image' : 'Upload image'}</span>
               <input className={styles.fileInput} type="file" accept="image/*" onChange={handleImageChange} />
             </label>
-            <button className={styles.exportButton} type="button" onClick={exportAllSlices} disabled={!source || !slices.length || isRendering}>
+            <button className={styles.exportButton} type="button" onClick={() => void exportAllSlices()} disabled={!source || !slices.length || isRendering}>
               <span aria-hidden="true">↓</span> Export All Slices
             </button>
           </div>
@@ -466,7 +473,7 @@ function ImageEditor({ onBack }: { onBack: () => void }) {
                 </div>
                 <div className={styles.previewFooter}>
                   <span className={styles.sliceLabel}>Slice {String(slice.index).padStart(2, '0')}</span>
-                  <button className={styles.downloadButton} type="button" onClick={() => saveSlice(slice)}>
+                  <button className={styles.downloadButton} type="button" onClick={() => void saveSlice(slice)}>
                     <span aria-hidden="true">↓</span> Download PNG
                   </button>
                 </div>

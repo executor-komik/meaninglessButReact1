@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent, type DragEvent } from 'react'
+import { saveFile } from '../../native/FileSaver'
 import styles from './negativeImageConverter.module.css'
 
 type ImagePreview = {
@@ -6,6 +7,7 @@ type ImagePreview = {
   name: string
   originalUrl: string
   negativeUrl: string
+  blob: Blob
   outputName: string
   width: number
   height: number
@@ -20,6 +22,7 @@ const getOutputName = (fileName: string) => `${fileName.replace(/\.[^.]+$/, '') 
 function NegativeImageConverter({ onBack }: { onBack: () => void }) {
   const [images, setImages] = useState<ImagePreview[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const [progress, setProgress] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   const [isDropTarget, setIsDropTarget] = useState(false)
@@ -93,6 +96,7 @@ function NegativeImageConverter({ onBack }: { onBack: () => void }) {
           name: file.name,
           originalUrl,
           negativeUrl,
+          blob,
           outputName: getOutputName(file.name),
           width,
           height,
@@ -136,17 +140,26 @@ function NegativeImageConverter({ onBack }: { onBack: () => void }) {
     if (files.length) void processFiles(files)
   }
 
-  const downloadAll = () => {
-    images.forEach((image, index) => {
-      window.setTimeout(() => {
-        const link = document.createElement('a')
-        link.href = image.negativeUrl
-        link.download = image.outputName
-        document.body.append(link)
-        link.click()
-        link.remove()
-      }, index * 180)
-    })
+  const downloadImages = async (files: ImagePreview[]) => {
+    if (isSaving || !files.length) return
+    setIsSaving(true)
+    setErrorMessage('')
+    try {
+      for (const [index, image] of files.entries()) {
+        setProgress(`Choose where to save PNG ${index + 1} of ${files.length}.`)
+        const saved = await saveFile(image.blob, image.outputName)
+        if (!saved) {
+          setProgress('PNG save cancelled.')
+          return
+        }
+      }
+      setProgress(`${files.length} PNG file${files.length === 1 ? '' : 's'} saved.`)
+    } catch (error) {
+      setProgress('')
+      setErrorMessage(error instanceof Error ? `PNG save failed: ${error.message}` : 'PNG save failed.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -184,9 +197,9 @@ function NegativeImageConverter({ onBack }: { onBack: () => void }) {
             </label>
           </div>
 
-          {isProcessing && (
+          {(isProcessing || isSaving || progress) && (
             <div className={styles.progress} role="status">
-              <span className={styles.spinner} aria-hidden="true" /> {progress}
+              {isProcessing && <span className={styles.spinner} aria-hidden="true" />} {progress}
             </div>
           )}
           {errorMessage && <p className={styles.errorMessage} role="alert">{errorMessage}</p>}
@@ -198,7 +211,7 @@ function NegativeImageConverter({ onBack }: { onBack: () => void }) {
                   <p className={styles.resultKicker}>Batch results</p>
                   <h2>{images.length} image{images.length === 1 ? '' : 's'} ready</h2>
                 </div>
-                <button className={styles.downloadButton} type="button" onClick={downloadAll} disabled={isProcessing}>
+                <button className={styles.downloadButton} type="button" onClick={() => void downloadImages(images)} disabled={isProcessing || isSaving}>
                   <span aria-hidden="true">↓</span> Download All PNGs
                 </button>
               </div>
@@ -211,9 +224,9 @@ function NegativeImageConverter({ onBack }: { onBack: () => void }) {
                         <span>{String(index + 1).padStart(2, '0')}</span> {image.name}
                         <span className={styles.imageDimensions}>{image.width} × {image.height} px</span>
                       </p>
-                      <a className={styles.individualDownload} href={image.negativeUrl} download={image.outputName}>
+                      <button className={styles.individualDownload} type="button" onClick={() => void downloadImages([image])} disabled={isProcessing || isSaving}>
                         <span aria-hidden="true">↓</span> Download PNG
-                      </a>
+                      </button>
                     </div>
                     <div className={styles.comparison}>
                       <figure className={styles.previewPanel}>

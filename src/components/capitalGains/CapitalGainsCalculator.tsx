@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { saveFile } from '../../native/FileSaver'
 import styles from './capitalGainsCalculator.module.css'
 
 type AssetType = 'equity-share' | 'equity-fund' | 'debt-fund'
@@ -454,7 +455,7 @@ const CapitalGainsCalculator = ({ onBack }: { onBack: () => void }) => {
     setCalculation(result)
   }
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     if (!calculation || !pdfExporter) return
     try {
       const pdfBlob = pdfExporter(
@@ -462,19 +463,10 @@ const CapitalGainsCalculator = ({ onBack }: { onBack: () => void }) => {
         Math.min(100, Math.max(0, Number(slabRate) || 0)),
       )
       if (pdfBlob.size === 0) throw new Error('The generated report was empty.')
-      const downloadUrl = URL.createObjectURL(pdfBlob)
-      const downloadLink = document.createElement('a')
-      downloadLink.href = downloadUrl
-      downloadLink.download = `capital-gains-report-${new Date().toISOString().slice(0, 10)}.pdf`
-      try {
-        document.body.append(downloadLink)
-        downloadLink.click()
-      } finally {
-        downloadLink.remove()
-        window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000)
-      }
+      const fileName = `capital-gains-report-${new Date().toISOString().slice(0, 10)}.pdf`
+      const saved = await saveFile(pdfBlob, fileName)
       setExportError('')
-      setExportStatus('Your PDF report download has started.')
+      setExportStatus(saved ? 'Your PDF report was saved.' : 'PDF save cancelled.')
     } catch (reason) {
       setExportStatus('')
       setExportError(
@@ -671,7 +663,7 @@ const CapitalGainsCalculator = ({ onBack }: { onBack: () => void }) => {
                 className={styles.downloadButton}
                 type="button"
                 disabled={!pdfExporter}
-                onClick={handleDownloadPdf}
+                onClick={() => void handleDownloadPdf()}
               >
                 <span aria-hidden="true">↓</span>
                 {pdfExporter ? 'Download full report (PDF)' : 'Preparing PDF download...'}
