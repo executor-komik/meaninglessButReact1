@@ -1,402 +1,393 @@
-import { useEffect, useState } from 'react'
-// import heroImg from './assets/hero.png'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from './assets/vite.svg'
+import { useEffect, useState, type FormEvent } from 'react'
 import './App.css'
-import ApiFetcher from './components/apiFetcher/ApiFetcher'
-import AnimateSomething from './components/animateSomething/AnimateSomething'
-import Calculator, { CalculatorPage } from './components/calculator/Calculator'
-import CapitalGainsCalculator from './components/capitalGains/CapitalGainsCalculator'
-import ImageEditor from './components/imageEditor/ImageEditor'
-import NegativeImageConverter from './components/negativeImageConverter/NegativeImageConverter'
-import PanoramaStitcher from './components/panoramaStitcher/PanoramaStitcher'
-import SendHai from './components/sendHai/SendHai'
-import Trial from './components/trial/Trial'
-import { App as PromiseLessons } from './promiseLessons/App'
-import './promiseLessons/index.css'
 
-const basePath = import.meta.env.BASE_URL.replace(/\/$/, '')
-const getRoutePath = () => {
-  const pathname = window.location.pathname
-  if (basePath && pathname === basePath) return '/'
-  const path = basePath && pathname.startsWith(`${basePath}/`)
-    ? pathname.slice(basePath.length)
-    : pathname
-  return path.replace(/\/$/, '') || '/'
+type Role = 'customer' | 'admin'
+type Screen = 'loading' | 'welcome' | 'login' | 'register' | 'registered' | 'dashboard'
+
+type User = {
+  user_id: string
+  name: string
+  role: Role
+}
+
+type RegistrationResponse = {
+  message: string
+  user: User
+}
+
+type LoginResponse = {
+  user: User
+}
+
+type SessionResponse = {
+  user: User | null
+}
+
+class ApiError extends Error {
+  status: number
+
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+  }
+}
+
+const navigationByRole: Record<Role, string[]> = {
+  customer: ['Home', 'Reservation', 'Billing', 'History', 'Bookings', 'Contact Support'],
+  admin: ['Home', 'Reservation', 'Billing', 'History', 'Room Status', 'Bookings', 'Support / Feedback'],
+}
+
+async function request<T>(path: string, body?: unknown): Promise<T> {
+  const response = await fetch(path, {
+    method: body === undefined ? 'GET' : 'POST',
+    credentials: 'same-origin',
+    headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  })
+
+  let payload: unknown
+  try {
+    payload = await response.json()
+  } catch (cause) {
+    throw new Error('The hotel service returned an unreadable response.', { cause })
+  }
+
+  if (!response.ok) {
+    throw new ApiError(readErrorMessage(payload, response.status), response.status)
+  }
+  return payload as T
+}
+
+function readErrorMessage(payload: unknown, status: number): string {
+  if (typeof payload === 'object' && payload !== null && 'detail' in payload) {
+    const detail = payload.detail
+    if (typeof detail === 'string') return detail
+    if (Array.isArray(detail)) {
+      return detail
+        .map((item) => {
+          if (typeof item !== 'object' || item === null || !('msg' in item)) return ''
+          const message = item.msg
+          return typeof message === 'string' ? message : ''
+        })
+        .filter(Boolean)
+        .join(' ')
+    }
+  }
+  return `The request could not be completed (HTTP ${status}).`
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof TypeError) {
+    return 'Could not reach the hotel service. Start the app with “npm run hotel” and try again.'
+  }
+  if (error instanceof Error) return error.message
+  return 'Something went wrong. Please try again.'
 }
 
 function App() {
-  const [path, setPath] = useState(getRoutePath)
-  const [isWaving, setIsWaving] = useState(false)
-  const [ideaSearch, setIdeaSearch] = useState('')
+  const [screen, setScreen] = useState<Screen>('loading')
+  const [user, setUser] = useState<User | null>(null)
+  const [loginRole, setLoginRole] = useState<Role>('customer')
+  const [registeredUser, setRegisteredUser] = useState<User | null>(null)
+  const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    const handlePopState = () => setPath(getRoutePath())
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
+    let active = true
+    void request<SessionResponse>('/api/auth/session')
+      .then(({ user: sessionUser }) => {
+        if (!active) return
+        if (sessionUser) {
+          setUser(sessionUser)
+          setScreen('dashboard')
+        } else {
+          setScreen('welcome')
+        }
+      })
+      .catch((cause: unknown) => {
+        if (!active) return
+        setScreen('welcome')
+        setNotice(errorMessage(cause))
+      })
+    return () => {
+      active = false
+    }
   }, [])
 
-  const navigateTo = (route: string) => {
-    window.history.pushState({}, '', `${import.meta.env.BASE_URL}${route.replace(/^\//, '')}`)
-    setPath(route)
+  const showLogin = (role: Role) => {
+    setLoginRole(role)
+    setError('')
+    setNotice('')
+    setScreen('login')
   }
 
-  const navigateHome = () => navigateTo('/')
-  const navigateIdeas = () => navigateTo('/ideas')
-  const navigateCalculator = () => navigateTo('/ideas/calculator')
-  const navigatePromiseLessons = () => navigateTo('/ideas/promise-lessons')
-  const navigateNeedHelp = () => navigateTo('/ideas/needHelp')
-  const navigateEdit = () => navigateTo('/ideas/edit')
-  const navigateStitch = () => navigateTo('/ideas/stitch')
-  const navigateNegative = () => navigateTo('/ideas/negative')
-  const navigateTrial = () => navigateTo('/ideas/trial')
-  const matchesIdeaSearch = (terms: string) =>
-    terms.toLocaleLowerCase().includes(ideaSearch.trim().toLocaleLowerCase())
-  const visibleIdeas = [
-    'wave hello goodbye',
-    'daily challenge api leetcode',
-    'animate motion noice',
-    'promise lessons fetch weather',
-    'normal calculator maths',
-    'advanced calculator tax capital gains',
-    'cut split image',
-    'stitch panorama images',
-    'negative invert image',
-    'trial short video subs gen captions subtitles speech',
-  ].filter(matchesIdeaSearch).length
+  const submitRegistration = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setError('')
+    setNotice('')
+    const form = new FormData(event.currentTarget)
+    if (form.get('password') !== form.get('confirm_password')) {
+      setError('Passwords do not match.')
+      return
+    }
+    setIsSubmitting(true)
+    try {
+      const result = await request<RegistrationResponse>('/api/auth/register', {
+        name: form.get('name'),
+        email: form.get('email'),
+        phone_country_code: form.get('phone_country_code'),
+        phone_number: form.get('phone_number'),
+        address: form.get('address'),
+        password: form.get('password'),
+      })
+      setRegisteredUser(result.user)
+      setScreen('registered')
+    } catch (cause: unknown) {
+      setError(errorMessage(cause))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
-  const route = path.startsWith('/ideas/') ? path.slice('/ideas'.length) : path
+  const submitLogin = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setError('')
+    setNotice('')
+    setIsSubmitting(true)
+    const form = new FormData(event.currentTarget)
+    try {
+      const result = await request<LoginResponse>('/api/auth/login', {
+        user_id: form.get('user_id'),
+        password: form.get('password'),
+        role: loginRole,
+      })
+      setUser(result.user)
+      setScreen('dashboard')
+    } catch (cause: unknown) {
+      setError(errorMessage(cause))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
-  if (route === '/dailyChallenge') return <DailyChallenge onBack={navigateIdeas} />
-  if (route === '/noice') return <Noice onBack={navigateIdeas} />
-  if (route === '/calculator') return <CalculatorPage onBack={navigateIdeas} />
-  if (route === '/needHelp') return <CapitalGainsCalculator onBack={navigateIdeas} />
-  if (route === '/edit') return <ImageEditor onBack={navigateIdeas} />
-  if (route === '/stitch') return <PanoramaStitcher onBack={navigateIdeas} />
-  if (route === '/negative') return <NegativeImageConverter onBack={navigateIdeas} />
-  if (route === '/trial') return <Trial onBack={navigateIdeas} />
-  if (route === '/promise-lessons') {
+  const logout = async () => {
+    setError('')
+    setNotice('')
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'same-origin',
+      })
+      if (!response.ok) {
+        throw new ApiError(`Sign out failed (HTTP ${response.status}). Please try again.`, response.status)
+      }
+      setUser(null)
+      setScreen('welcome')
+    } catch (cause: unknown) {
+      setError(errorMessage(cause))
+    }
+  }
+
+  if (screen === 'loading') {
+    return <main className="loadingScreen" aria-live="polite">Checking your sign-in...</main>
+  }
+
+  if (screen === 'dashboard' && user) {
     return (
-      <div className="promiseLessonsPage">
-        <button className="page__backButton" type="button" onClick={navigateIdeas}>← Ideas</button>
-        <PromiseLessons />
-      </div>
+      <main className="hotelApp">
+        <header className="topBar">
+          <a className="brand" href="/" aria-label="Haven Hotel home">
+            <span className="brand__mark" aria-hidden="true">H</span>
+            <span>Haven <strong>Hotel</strong></span>
+          </a>
+          <div className="topBar__account">
+            <span>Welcome, <strong>{user.name}</strong></span>
+            <button className="button button--quiet" type="button" onClick={logout}>Log out</button>
+          </div>
+        </header>
+
+        <nav className="primaryNav" aria-label={`${user.role} navigation`}>
+          {navigationByRole[user.role].map((item) => (
+            <button
+              className={`primaryNav__item${item === 'Home' ? ' primaryNav__item--active' : ''}`}
+              disabled={item !== 'Home'}
+              key={item}
+              title={item === 'Home' ? undefined : 'Available in a later phase'}
+              type="button"
+            >
+              {item}
+              {item !== 'Home' && <span className="primaryNav__soon">Soon</span>}
+            </button>
+          ))}
+        </nav>
+
+        <section className="dashboard">
+          <p className="eyebrow">{user.role === 'admin' ? 'Administration' : 'Guest account'} · Phase 1</p>
+          <h1>Your stay,<br /><em>made simple.</em></h1>
+          <p className="dashboard__intro">
+            {user.role === 'admin'
+              ? 'Your administrator workspace is ready. Reservation and room tools will appear here in upcoming phases.'
+              : 'Your customer account is ready. You will be able to manage reservations and your stay here in upcoming phases.'}
+          </p>
+          <div className="accountCard">
+            <span className="accountCard__label">{user.role === 'admin' ? 'Administrator ID' : 'Customer ID'}</span>
+            <strong>{user.user_id}</strong>
+            <span className="accountCard__note">Keep this ID handy for your next sign-in.</span>
+          </div>
+          {error && <p className="formMessage formMessage--error" role="alert">{error}</p>}
+        </section>
+      </main>
     )
   }
 
-  if (path === '/ideas') return (
-    <>
-      <main className="dashboard">
-        <button className="page__backButton" type="button" onClick={navigateHome}>← Portfolio</button>
-        <header className="dashboard__intro">
-          <p className="dashboard__eyebrow">Personal playground · 10 experiments</p>
-          <h1>Choose your next move.</h1>
-          <p className="dashboard__subtitle">A collection of handy tools, creative experiments, and small things I&apos;m learning.</p>
-        </header>
-
-        <label className="ideasSearch">
-          <span className="ideasSearch__icon" aria-hidden="true">⌕</span>
-          <span className="ideasSearch__label">Find an idea</span>
-          <input
-            type="search"
-            value={ideaSearch}
-            placeholder="Try “calculator” or “image”"
-            onChange={(event) => setIdeaSearch(event.target.value)}
-          />
-          {ideaSearch && (
-            <button type="button" onClick={() => setIdeaSearch('')} aria-label="Clear idea search">×</button>
-          )}
-        </label>
-
-        <section className="actionBoard" aria-label="Available actions">
-          <div className="actionBoard__item actionBoard__item--top" hidden={!matchesIdeaSearch('wave hello goodbye')}>
-            <span className="actionBoard__index">01</span>
-            <SendHai onWave={() => setIsWaving(true)} />
-          </div>
-          <div className="actionBoard__item actionBoard__item--left" hidden={!matchesIdeaSearch('daily challenge api leetcode')}>
-            <span className="actionBoard__index">02</span>
-            <ApiFetcher />
-          </div>
-          <div className="actionBoard__item actionBoard__item--right" hidden={!matchesIdeaSearch('animate motion noice')}>
-            <span className="actionBoard__index">03</span>
-            <AnimateSomething />
-          </div>
-          <div className="actionBoard__item actionBoard__item--apiAgain" hidden={!matchesIdeaSearch('promise lessons fetch weather')}>
-            <span className="actionBoard__index">04</span>
-            <ApiFetcher label="API Again" onClick={navigatePromiseLessons} />
-          </div>
-          <div className="actionBoard__item actionBoard__item--calculator" hidden={!matchesIdeaSearch('normal calculator maths')}>
-            <span className="actionBoard__index">05</span>
-            <Calculator onOpen={navigateCalculator} />
-          </div>
-          <div className="actionBoard__item actionBoard__item--advancedCalculator" hidden={!matchesIdeaSearch('advanced calculator tax capital gains')}>
-            <span className="actionBoard__index">06</span>
-            <button className="advancedCalculator" type="button" onClick={navigateNeedHelp}>
-              <span aria-hidden="true">ƒx</span>
-              <span>Advanced Calculator</span>
-              <span aria-hidden="true">↗</span>
-            </button>
-          </div>
-          <div className="actionBoard__item actionBoard__item--topIdea" hidden={!matchesIdeaSearch('cut split image')}>
-            <span className="actionBoard__index">07</span>
-            <button className="ideaButton ideaButton--top" type="button" onClick={navigateEdit}>
-              <span className="ideaButton__icon" aria-hidden="true">↑</span>
-              <span>Cut</span>
-            </button>
-          </div>
-          <div className="actionBoard__item actionBoard__item--leftIdea" hidden={!matchesIdeaSearch('stitch panorama images')}>
-            <span className="actionBoard__index">08</span>
-            <button className="ideaButton ideaButton--left" type="button" onClick={navigateStitch}>
-              <span className="ideaButton__icon" aria-hidden="true">←</span>
-              <span>Stitch</span>
-            </button>
-          </div>
-          <div className="actionBoard__item actionBoard__item--rightIdea" hidden={!matchesIdeaSearch('negative invert image')}>
-            <span className="actionBoard__index">09</span>
-            <button className="ideaButton ideaButton--right" type="button" onClick={navigateNegative}>
-              <span className="ideaButton__icon" aria-hidden="true">→</span>
-              <span>Negative</span>
-            </button>
-          </div>
-          <div className="actionBoard__item actionBoard__item--trial" hidden={!matchesIdeaSearch('trial short video subs gen captions subtitles speech')}>
-            <span className="actionBoard__index">10</span>
-            <button className="ideaButton ideaButton--trial" type="button" onClick={navigateTrial}>
-              <span className="ideaButton__icon" aria-hidden="true">CC</span>
-              <span>Short Video Subs Gen</span>
-              <span className="ideaButton__arrow" aria-hidden="true">↗</span>
-            </button>
-          </div>
-        </section>
-        {visibleIdeas === 0 && (
-          <p className="ideasSearch__empty">No matching ideas yet. Try another search.</p>
-        )}
-      </main>
-      {isWaving && <WavingHand onClose={() => setIsWaving(false)} />}
-      {/* <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section> */}
-    </>
-  )
-
-  return <PortfolioPage onOpenIdeas={navigateIdeas} />
-}
-
-function PortfolioPage({ onOpenIdeas }: { onOpenIdeas: () => void }) {
   return (
-    <main className="portfolio">
-      <header className="portfolio__nav">
-        <a className="portfolio__brand" href="#top">YN<span>.</span></a>
-        <a className="portfolio__navLink" href="#about">About</a>
+    <main className="entryPage">
+      <header className="topBar topBar--entry">
+        <a className="brand" href="/" aria-label="Haven Hotel home">
+          <span className="brand__mark" aria-hidden="true">H</span>
+          <span>Haven <strong>Hotel</strong></span>
+        </a>
+        <span className="topBar__caption">A place to feel at home</span>
       </header>
 
-      <section className="portfolio__hero" id="top">
-        <p className="portfolio__eyebrow">Portfolio · {new Date().getFullYear()}</p>
-        <p className="portfolio__hello">Hello, I&apos;m</p>
-        <h1>Your Name<span>.</span></h1>
-        <p className="portfolio__role">Developer · maker · curious mind</p>
-        <p className="portfolio__summary">
-          I enjoy turning ideas into useful, thoughtful digital experiences.
-          This is a little corner of the internet where I share what I&apos;m
-          learning and building.
-        </p>
-        <a className="portfolio__contact" href="mailto:hello@example.com">Get in touch <span>↗</span></a>
-        <div className="portfolio__orbit portfolio__orbit--one" aria-hidden="true" />
-        <div className="portfolio__orbit portfolio__orbit--two" aria-hidden="true" />
-      </section>
-
-      <section className="portfolio__about" id="about">
-        <div>
-          <p className="portfolio__eyebrow">A little about me</p>
-          <h2>Building things, one idea at a time.</h2>
+      <section className="entryLayout">
+        <div className="entryIntro">
+          <p className="eyebrow">A better kind of stay</p>
+          <h1>Arrive.<br /><em>Unwind.</em></h1>
+          <p>Thoughtful hospitality begins with a simple, comfortable experience.</p>
+          <div className="entryIntro__rule" />
+          <span className="entryIntro__location">Your next stay starts here</span>
         </div>
-        <p>
-          I&apos;m a developer who likes solving problems, exploring new
-          technologies, and making the web more useful. I&apos;m currently
-          focused on growing my skills through hands-on projects.
-        </p>
+
+        <section className="authPanel" aria-labelledby="auth-heading">
+          {screen === 'welcome' && (
+            <>
+              <p className="eyebrow">Welcome to Haven</p>
+              <h2 id="auth-heading">How would you like to continue?</h2>
+              <p className="authPanel__copy">Sign in to your account, or create a customer account to get started.</p>
+              {notice && <p className="formMessage formMessage--error" role="alert">{notice}</p>}
+              <button className="button button--primary button--full" type="button" onClick={() => showLogin('customer')}>
+                Customer sign in
+              </button>
+              <button className="button button--secondary button--full" type="button" onClick={() => setScreen('register')}>
+                Create a customer account
+              </button>
+              <div className="authPanel__divider"><span>Hotel team</span></div>
+              <button className="button button--quiet button--full" type="button" onClick={() => showLogin('admin')}>
+                Administrator sign in
+              </button>
+            </>
+          )}
+
+          {screen === 'register' && (
+            <>
+              <button className="textButton" type="button" onClick={() => setScreen('welcome')}>← Back</button>
+              <p className="eyebrow">Customer account</p>
+              <h2 id="auth-heading">Create your account</h2>
+              <p className="authPanel__copy">Your customer ID will be generated after registration.</p>
+              <form className="form" onSubmit={submitRegistration}>
+                <label className="form__field">
+                  <span>Customer name</span>
+                  <input autoComplete="name" maxLength={50} name="name" placeholder="Your full name" required />
+                </label>
+                <label className="form__field">
+                  <span>Email address</span>
+                  <input autoComplete="email" maxLength={254} name="email" placeholder="you@example.com" required type="email" />
+                </label>
+                <div className="form__row">
+                  <label className="form__field form__field--country">
+                    <span>Country code</span>
+                    <select autoComplete="tel-country-code" defaultValue="+91" name="phone_country_code">
+                      <option value="+1">+1</option>
+                      <option value="+44">+44</option>
+                      <option value="+61">+61</option>
+                      <option value="+81">+81</option>
+                      <option value="+91">+91</option>
+                      <option value="+971">+971</option>
+                    </select>
+                  </label>
+                  <label className="form__field">
+                    <span>Mobile number</span>
+                    <input
+                      autoComplete="tel-national"
+                      inputMode="numeric"
+                      maxLength={10}
+                      minLength={10}
+                      name="phone_number"
+                      pattern="[0-9]{10}"
+                      placeholder="10 digits"
+                      required
+                      type="tel"
+                    />
+                  </label>
+                </div>
+                <label className="form__field">
+                  <span>Mailing address</span>
+                  <textarea autoComplete="street-address" maxLength={500} name="address" placeholder="Street, city, and postal code" required rows={2} />
+                </label>
+                <label className="form__field">
+                  <span>Password</span>
+                  <input autoComplete="new-password" maxLength={30} minLength={8} name="password" required type="password" />
+                  <small>8–30 characters; include uppercase, lowercase, and a special character.</small>
+                </label>
+                <label className="form__field">
+                  <span>Confirm password</span>
+                  <input autoComplete="new-password" maxLength={30} minLength={8} name="confirm_password" required type="password" />
+                </label>
+                {error && <p className="formMessage formMessage--error" role="alert">{error}</p>}
+                <button className="button button--primary button--full" disabled={isSubmitting} type="submit">
+                  {isSubmitting ? 'Creating account...' : 'Register'}
+                </button>
+                <button className="button button--quiet button--full" type="reset">Reset form</button>
+              </form>
+            </>
+          )}
+
+          {screen === 'registered' && registeredUser && (
+            <div className="acknowledgment">
+              <span className="acknowledgment__check" aria-hidden="true">✓</span>
+              <p className="eyebrow">Registration complete</p>
+              <h2 id="auth-heading">Welcome, {registeredUser.name}.</h2>
+              <p className="acknowledgment__success">Customer registration successful.</p>
+              <div className="accountCard accountCard--ack">
+                <span className="accountCard__label">Your generated Customer ID</span>
+                <strong>{registeredUser.user_id}</strong>
+                <span className="accountCard__note">Save this ID. You will need it to sign in.</span>
+              </div>
+              <button className="button button--primary button--full" type="button" onClick={() => showLogin('customer')}>
+                Continue to customer sign in
+              </button>
+            </div>
+          )}
+
+          {screen === 'login' && (
+            <>
+              <button className="textButton" type="button" onClick={() => setScreen('welcome')}>← Back</button>
+              <p className="eyebrow">{loginRole === 'admin' ? 'Hotel team' : 'Customer account'}</p>
+              <h2 id="auth-heading">{loginRole === 'admin' ? 'Administrator sign in' : 'Welcome back'}</h2>
+              <p className="authPanel__copy">Sign in with your User ID and password.</p>
+              <form className="form" onSubmit={submitLogin}>
+                <label className="form__field">
+                  <span>User ID</span>
+                  <input autoComplete="username" maxLength={20} minLength={5} name="user_id" placeholder="Enter your User ID" required />
+                </label>
+                <label className="form__field">
+                  <span>Password</span>
+                  <input autoComplete="current-password" maxLength={30} name="password" required type="password" />
+                </label>
+                {error && <p className="formMessage formMessage--error" role="alert">{error}</p>}
+                <button className="button button--primary button--full" disabled={isSubmitting} type="submit">
+                  {isSubmitting ? 'Signing in...' : 'Sign in'}
+                </button>
+              </form>
+            </>
+          )}
+        </section>
       </section>
-
-      <section className="portfolio__focus">
-        <p className="portfolio__eyebrow">What I enjoy</p>
-        <div className="portfolio__focusGrid">
-          <article><span>01</span><h3>Frontend craft</h3><p>Building clean, responsive interfaces.</p></article>
-          <article><span>02</span><h3>Creative tools</h3><p>Making small ideas genuinely useful.</p></article>
-          <article><span>03</span><h3>Always learning</h3><p>Trying, iterating, and getting better.</p></article>
-        </div>
-      </section>
-
-      <footer className="portfolio__footer">
-        <div>
-          <p className="portfolio__eyebrow">Curious about the experiments?</p>
-          <h2>Explore my ideas.</h2>
-          <p className="portfolio__footerCopy">Small tools, creative experiments, and things I&apos;ve been learning.</p>
-        </div>
-        <button className="portfolio__ideasButton" type="button" onClick={onOpenIdeas}>
-          Ideas <span aria-hidden="true">↗</span>
-        </button>
-      </footer>
+      <footer className="entryFooter">Haven Hotel <span>·</span> A calmer way to check in</footer>
     </main>
-  )
-}
-
-function DailyChallenge({ onBack }: { onBack: () => void }) {
-  const [challenge, setChallenge] = useState<Record<string, unknown> | null>(null)
-  const [error, setError] = useState('')
-
-  useEffect(() => {
-    fetch('https://alfa-leetcode-api.onrender.com/daily')
-      .then((response) => {
-        if (!response.ok) throw new Error('The challenge could not be loaded.')
-        return response.json()
-      })
-      .then(setChallenge)
-      .catch((reason: Error) => setError(reason.message))
-  }, [])
-
-  return (
-    <main className="page page--challenge">
-      <button className="page__backButton" type="button" onClick={onBack}>← Ideas</button>
-      <div className="page__heading">
-        <p className="page__eyebrow">Daily practice</p>
-        <h1>Today&apos;s challenge.</h1>
-        <p className="page__subtitle">A focused problem to sharpen your problem-solving muscles.</p>
-      </div>
-      <article className="page__card">
-        {error && <p className="page__error">{error}</p>}
-        {!challenge && !error && <p className="page__loading">Finding today&apos;s problem...</p>}
-        {challenge && (
-          <>
-            <div className="page__meta"><span>LeetCode daily</span><span>{String(challenge.difficulty ?? 'Practice')}</span></div>
-            <h2>{String(challenge.questionTitle ?? challenge.title ?? 'Daily Challenge')}</h2>
-            <p>{String(challenge.question ?? challenge.content ?? 'Open the problem to begin today\'s practice.')}</p>
-            {typeof challenge.link === 'string' && <a className="page__link" href={challenge.link} target="_blank" rel="noreferrer">Open problem ↗</a>}
-          </>
-        )}
-      </article>
-    </main>
-  )
-}
-
-function Noice({ onBack }: { onBack: () => void }) {
-  return (
-    <main className="page page--noice">
-      <button className="page__backButton page__backButton--noice" type="button" onClick={onBack}>← Ideas</button>
-      <div className="page__noiceCopy"><p className="page__eyebrow">Noice mode</p><h1>Let it bounce.</h1></div>
-      <div className="page__bouncer" aria-label="An infinitely bouncing shape" />
-    </main>
-  )
-}
-
-function WavingHand({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="waveOverlay" role="dialog" aria-label="Waving hand">
-      <button className="waveOverlay__close" type="button" onClick={onClose} aria-label="Close waving hand">×</button>
-      <div className="waveOverlay__hand" aria-hidden="true">👋</div>
-      <p>Have a lovely day!</p>
-    </div>
   )
 }
 
